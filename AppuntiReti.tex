@@ -116,7 +116,7 @@
 		\item Ritardo di propagazione (d/s)
 		\begin{itemize}
 			\item d = lunghezza dl collegamento fisico 
-			\item s = velocità di propagazione del collegamento (\textasciitilde} \(2 \cdot 10^8\) m/s)
+			\item s = velocità di propagazione del collegamento (\textasciitilde \(2 \cdot 10^8\) m/s)
 		\end{itemize}
 	\end{enumerate}
 	\begin{center}
@@ -128,6 +128,62 @@
 		d_{nodal} = d_{proc}+d_{queue}+d_{trans}+d_{prop}
 	\end{equation}
 	dove:
+	\begin{itemize}
+		\item d\textsubscript{proc} = ritardo di elaborazione (processing delay)
+		\subitem- in genere di pochi microsecondi, o anche meno
+		\item d\textsubscript{queue} = ritardo di accodamento
+		\subitem- dipende dalla congestione
+		\item d\textsubscript{trans} = ritardo di trasmissione (transmission delay)
+		\subitem- significativo sui collegamenti a bassa velocità
+		\item d\textsubscript{prop} = ritardo di propagazione (propagation delay)
+		\subitem- da pochi microsecondi a centinaia di millisecondi
+	\end{itemize}
+	\subsubsection{Ritardo di accodamento}
+	\begin{itemize}
+		\item R = frequenza di trasmissione (bps)
+		\item L = lunghezza del pacchetto (bit)
+		\item a = tasso medio di arrivo dei pacchetti
+	\end{itemize}
+	
+	Se calcoliamo La/R otteniamo l'intensità di traffico:
+	\begin{itemize}
+		\item Vicino a 0: poco ritardo
+		\item Minore o uguale a 1: traffico consistente
+		\item Maggiore di 1: più lavoro in arrivo di quanto possa essere effettivamente svolto, ritardo medio infinito.
+	\end{itemize}
+	Il \textbf{throughput} viene calcolato come la frequenza (bit/unità di tempo) alla quale i bit sono trasferiti tra mittente e ricevente. Può essere istantaneo o medio (in un periodo più lungo).
+	\medskip\\In internet si considera anche il \textbf{collo di bottiglia}, ovvero un collegamento su un percorso punto-punto che vincola un throughput end to end.
+	\section{Livelli di protocollo e i loro modelli di servizio}
+	Si considerano principalmente 5 livelli di protocollo:
+	\begin{enumerate}
+		\item \textbf{Applicazione:} di supporto alle applicazioni di rete
+		\item \textbf{Trasporto:} trasferimento dei messaggi del livello applicazione tra modulo client e server, connessione tra processi applicativi
+		\item \textbf{Rete:} instradamento dei datagram dall'origine al destinatario
+		\item \textbf{Link \textit{(collegamento)}:} instradamento dei datagram attraverso una serie di commutatori di pacchetto
+		\item \textbf{Fisico:} trasferimento dei singoli bit
+	\end{enumerate}
+	\section{Reti sotto attacco: la sicurezza}
+	I malintenzionati installano malware negli host attraverso internet. Il malware può raggiungere gli host attraverso virus, worm o cavalli di Troia. Un malware di spionaggio può registrare quanto viene digitato, i siti visitati e informazioni di upload. Gli host infettati possono diventare botnet e essere usati per lo spamming e attacchi DDoS. Un malware è spesso auto-replicante e da un host attaccato può passare ad altri host.
+	\paragraph{Analisi di pacchetti} Chiamato anche packet sniffing, quando un'interfaccia di rete legge/registra tutti i pacchetti che la attraversano.
+	\paragraph{IP spoofing} Invio di pacchetti con un indirizzo sorgente falso.
+	\paragraph{Record-and-playback} Vengono "sniffati" dati sensibili per utilizzarli in un secondo momento.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 \end{document}
