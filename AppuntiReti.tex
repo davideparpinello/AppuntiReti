@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{mathtools}
 \usepackage{float}
+\graphicspath{ {./images/} }
 \hypersetup{
 	colorlinks,
 	citecolor=black,
@@ -93,6 +94,40 @@
 		\end{itemize}
 	\end{itemize}
 	Un pacchetto attraversa un sacco di reti, dal livello più basso fino al principale e poi nuovamente a scendere.
+	\section{Ritardi, perdite e throughput nelle reti a comunicazione di pacchetto}
+	Nella rete si verificano dei ritardi quando il tasso di arrivo dei pacchetti eccede la capacità di evaderli, con la conseguenza che vengono accodati nei buffer del router in attesa del proprio turno. Se non ci sono buffer liberi i pacchetti vengono scartati e ritrasmetti dal nodo precedente o, in alcuni casi, non venire proprio ritrasmessi.
+	\medskip\\ Quattro cause di ritardo dei pacchetti sono le seguenti:
+	\begin{enumerate}
+		\item Ritardo di elaborazione sul nodo
+		\begin{itemize}
+			\item Controllo errori sui bit
+			\item Determinazione del canale di uscita
+		\end{itemize}
+		\item Ritardo di accodamento
+		\begin{itemize}
+			\item Attesa di trasmissione
+			\item Livello di congestione del router
+		\end{itemize}
+		\item Ritardo di trasmissione (L/R)
+		\begin{itemize}
+			\item R = frequenza di trasmissione del collegamento
+			\item L = lunghezza del pacchetto
+		\end{itemize}
+		\item Ritardo di propagazione (d/s)
+		\begin{itemize}
+			\item d = lunghezza dl collegamento fisico 
+			\item s = velocità di propagazione del collegamento (\textasciitilde} \(2 \cdot 10^8\) m/s)
+		\end{itemize}
+	\end{enumerate}
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{ritardi.png}
+	\end{center}
+	\subsection{Ritardo di un nodo}
+	Il ritardo di un nodo è dato dalla seguente formula:
+	\begin{equation}
+		d_{nodal} = d_{proc}+d_{queue}+d_{trans}+d_{prop}
+	\end{equation}
+	dove:
 	
 	
 \end{document}
