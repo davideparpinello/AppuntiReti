@@ -17,7 +17,7 @@
 \usepackage{fancyhdr}
 \newcommand\hr{\par\vspace{-.5\ht\strutbox}\noindent\hrulefill\par}
 \usepackage{enumitem}
-
+\newcommand{\code}{\texttt}
 
 \begin{document}
 	
@@ -305,7 +305,69 @@
 	\end{itemize}
 	\paragraph{POP3} Suddiviso in due fasi: autorizzazione e transazione, è un protocollo senza stato tra le varie sessioni
 	\paragraph{IMAP} Mantiene tutti i messaggi sul server, consente all'utente di organizzare i messaggi in cartelle e conserva lo stato tra le varie sessioni (nomi delle cartelle, associazione tra identificatori dei messaggi e nomi delle cartelle).
-	
+	\section{DNS}
+	Il DNS, Domain Name System è un protocollo a livello applicazione che consente a host, router e server DNS di comunicare per risolvere i nomi dei siti web. Il DNS traduce un hostname come \textit{www.facebook.com} in un indirizzo IP.
+	\paragraph{Host aliasing} In alcuni casi, un host può avere più nomi, come nel caso dell'aliasing dei server mail.
+	\medskip\\Il DNS è un database distribuito implementato in una gerarchia di server DNS. Tipicamente, un server DNS radice viene contattato da un server DNS locale che non può tradurre un nome. A sua volta, il DNS radice contatta un server DNS autorizzato se non conosce la mappatura del nome, la ottiene e la restituisce al server DNS locale.
+	\paragraph{Server TLD (top-level domain} Si occupano dei domini .com, .org, .net, .edu, ecc. e di tutti gli altri domini locali di alto livello, quali .uk, .fr, .ca e .jp.
+	\paragraph{Server di competenza (authoritative server} Ogni organizzazione dotata di host internet pubblicamente accessibili (server web e di posta) deve fornire i record DNS di pubblico dominio che mappano i nomi di tali host in indirizzi IP; possono essere mantenuti dall'organizzazione o dal service provider.
+	\medskip\\Il server DNS locale non appartiene strettamente alla gerarchia dei server, ciascun ISP (università, società) ha un server DNS locale. Quando un host effettua una richiesta DNS, la query viene inviata al suo server DNS locale, che opera da proxy e inoltra la query in una gerarchia di server DNS.
+	\medskip\\Una volta che un server DNS impara la mappatura la mette nella cache, dove le informazioni vengono invalidate dopo un certo periodo di tempo. Tipicamente, un server DNS locale memorizza nella cache gli indirizzi IP dei server TLD, quindi i server radice non vengono visitati spesso.
+	\medskip\\Il DNS è un database distribuito che memorizza i record di risorsa (RR) che hanno il seguente formato: \verb|(name, value, type, TTL)|
+	\begin{itemize}
+		\item Type = A
+		\begin{itemize}
+			\item \code{name} è il nome dell'host (server)
+			\item \code{value} è l'indirizzo IP
+		\end{itemize}
+		\item Type = NS
+		\begin{itemize}
+			\item \code{name} è il dominio (\code{foo.com})
+			\item \code{value} è il nome dell'host del server DNS di competenza di questo dominio
+		\end{itemize}
+		\item Type = CNAME
+		\begin{itemize}
+			\item \code{name} è il nome alias di qualche nome canonico (\code{www.ibm.com})
+			\item \code{value} è il nome canonico (\code{servereast.backup2.ibm.com})
+		\end{itemize}
+		\item Type = MX
+		\begin{itemize}
+			\item \code{value} è il nome del server di posta associato a \code{name}
+		\end{itemize}
+	\end{itemize}
+	\subsection{Protocollo DNS}
+	Il protocollo DNS è costituito da domande (query) e messaggi di risposta, entrambi con lo stesso formato.
+	\subsubsection{Intestazione del messaggio (12 byte - 6 campi)}
+	L'intestazione è costituita da un numero da 16 bit di identificazione della domanda, utilizzato uguale dalla risposta, e da un flag indicante:
+	\begin{itemize}
+		\item domanda o risposta
+		\item richiesta di ricorsione
+		\item ricorsione disponibile
+		\item risposta di competenza
+	\end{itemize}
+	\subsubsection{Resto del messaggio}
+	\begin{itemize}
+		\item Campi per il nome richiesto e il tipo di domanda
+		\item RR nella risposta alla domanda
+		\item Record per i server di competenza
+		\item Informazioni extra che possono essere usate
+	\end{itemize}
+	\newpage
+	\section{Condivisione di file P2P}
+	Nell'architettura P2P pura non c'è un server sempre attivo, infatti coppie arbitrarie di host (peer) comunicano direttamente tra loro. I peer non devono essere sempre attivi e possono cambiare indirizzo IP.
+	\subsection{Confronto tra architettura server client e P2P}
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{server-client.png}
+		\medskip\\
+		\includegraphics[width=0.7\linewidth]{p2p.png}
+	\end{center}
+	\paragraph{Tracker} Il tracker tiene traccia dei peer che partecipano alla rete, dove un torrent è un gruppo di peer che si cambiano parti di un file.
+	\medskip\\Un file condiviso è diviso in più parti da 256 Kb, chiamati \textit{chunk}. Il peer invia le sue parti a 4 vicini, quelli che gli stanno inviando alla frequenza più alta (aggiornata ogni 10 secondi). Successivamente, ogni 30 secondi viene scelto un peer a caso che riceve i chunk; oltre a questi 5 gli altri peer non riceveranno nulla.
+	\paragraph{Query flooding} Ciascun peer indicizza i file che rende disponibili per la condivisione. Il messaggio di richiesta è trasmesso sulle connessioni TCP esistenti, il peer inoltra la richiesta e il messaggio di successo più trasmesso viene inviato sul percorso inverso.
+	\section{Cloud Computing}
+	L'architettura del cloud computing prevede uno o più server reali, generalmente in architettura ad alta affidabilità e fisicamente collocati presso i datacenter del fornitore del servizio.
+	\subsection{CDN}
+	Le CDN, o Content Delivery Networks, rappresentano una soluzione comune per la realizzazione di servizi su internet, la quale costruisce una rete "overlay" per la distribuzione di contenuti. Serve per memorizzare i dati il più vicino possibile ai consumatori in modo da ottimizzare le prestazioni di rete, ridurre la latenza ed evitare colli di bottiglia.
 	
 	
 	
