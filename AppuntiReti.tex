@@ -529,10 +529,11 @@
 	\medskip\\Vengono utilizzati tre meccanismi: AIMD, partenza lenta e reazione agli eventi di timeout.
 	\newpage
 	\subsection{Partenza lenta}
-	\begin{wrapfigure}{r}{0.2\textwidth}
+	\begin{wrapfigure}{r}{0.3\textwidth}
 		\centering
-		\includegraphics[width=0.2\textwidth]{partenza-lenta}
-		\vspace{-30pt}
+		\vspace{-20pt}
+		\includegraphics[width=0.3\textwidth]{partenza-lenta}
+		\vspace{-50pt}
 	\end{wrapfigure}
 	Quando si stabilisce una connessione (\verb|CongWin| = 1 MSS) la frequenza aumenta in modo esponenziale fino a quando non si verifica una perdita: infatti \verb|CongWin| raddoppia a ogni RTT incrementandolo per ogni ACK ricevuto.
 	\medskip\\Dopo 3 ACK duplicati (perdita), \verb|CongWin| è ridotto a metà e la finestra cresce linearmente. Se si verifica però un timeout, \verb|CongWin| viene impostato a 1 MSS crescendo in modo esponenziale fino a una soglia, dopo la quale crescerà linearmente.
