@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{mathtools}
 \usepackage{float}
+\usepackage{wrapfig}
 \graphicspath{ {./images/} }
 \hypersetup{
 	colorlinks,
@@ -368,6 +369,44 @@
 	L'architettura del cloud computing prevede uno o più server reali, generalmente in architettura ad alta affidabilità e fisicamente collocati presso i datacenter del fornitore del servizio.
 	\subsection{CDN}
 	Le CDN, o Content Delivery Networks, rappresentano una soluzione comune per la realizzazione di servizi su internet, la quale costruisce una rete "overlay" per la distribuzione di contenuti. Serve per memorizzare i dati il più vicino possibile ai consumatori in modo da ottimizzare le prestazioni di rete, ridurre la latenza ed evitare colli di bottiglia.
+	\chapter{Il livello di Trasporto}
+	\section{Servizi a livello di trasporto}
+	I servizi a livello di trasporto forniscono la comunicazione logica tra processi applicativi di host differenti. I protocolli di trasporto vengono eseguiti nei sistemi terminali: il lato invio scinde i messaggi in segmenti e li passa al livello di rete, il lato ricezione invece riassembla i segmenti in messaggi e li passa al livello applicazione.
+	\begin{itemize}
+		\item \textbf{Livello di rete:} si occupa della comunicazione logica tra host
+		\item \textbf{Livello di trasporto:} si occupa della comunicazione logica tra processi, si basa sui servizi del livello di rete e li potenzia
+	\end{itemize}
+	\paragraph{Demultiplexing} Nell'host ricevente, si occupa di consegnare i segmenti ricevuti alla socket appropriata.
+	\paragraph{Multiplexing} Nell'host mittente, raccoglie i dati da varie socket, li incapsula con l'intestazione (usata poi nel demultiplexing).
+	\medskip\\
+	\begin{wrapfigure}{r}{0.3\textwidth}
+		\centering
+		\vspace{-30pt}
+		\includegraphics[width=0.25\textwidth]{segmento-trasporto}
+	\end{wrapfigure}
+	L’host riceve i datagrammi IP; ogni datagramma ha un indirizzo IP di origine e uno di destinazione, e trasporta 1 segmento a livello di trasporto, ogni segmento ha un numero di porta di origine e un numero di porta di destinazione. L’host usa gli indirizzi IP e i numeri di porta per inviare il segmento alla socket appropriata.
+	
+	\subsection{Demultiplexing senza connessione}
+	Il demultiplexing senza connessione utilizza una socket UDP identificata da indirizzo IP di destinazione e numero della porta di destinazione. Quando l'host riceve il segmento UDP controlla il numero di porta nel segmento e poi lo invia alla socket correlata. Datagram IP con indirizzi IP e/o numeri di porta di origine differenti vengono inviati alla stessa socket.
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{socket-udp}
+	\end{center}
+	\subsection{Demultiplexing orientato alla connessione}
+	Il demultiplexing orientato alla connessione utilizza una socket TCP identificata da quattro parametri: indirizzo IP e porta d'origine e indirizzo IP e porta di destinazione. L'host ricevente usa tutti e quattro i parametri per inviare il segmento alla socket appropriata. Un host server può supportare più socket TCP contemporanee. I server web hanno socket differenti per ogni connessione client, con HTTP non-persistente si avrà invece una socket differente per ogni richiesta.
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{socket-tcp}
+	\end{center}
+	\section{Trasporto senza connessione: UDP}
+	\begin{wrapfigure}{r}{0.3\textwidth}
+		\centering
+		\vspace{-30pt}
+		\includegraphics[width=0.25\textwidth]{segmento-udp}
+		\vspace{-30pt}
+	\end{wrapfigure}
+
+	UDP, User Datagram Protocol, è un protocollo di trasporto "senza fronzoli", infatti ha un servizio di consegna best effort (miglior sforzo). Per questo i segmenti UDP possono essere perduti o consegnati fuori sequenza all'applicazione.\medskip\\ Essendo senza connessione non c'è handshaking tra mittente e destinatario, quindi ogni segmento UDP è gestito indipendentemente dagli altri.
+	\paragraph{Checksum UDP} Il checksum UDP serve per rilevare gli “errori” (bit alternati) nel segmento trasmesso, il segmento viene trattato come una sequenza di interi da 16 bit.
+	
 	
 	
 	
