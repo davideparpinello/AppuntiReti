@@ -378,11 +378,12 @@
 	\end{itemize}
 	\paragraph{Demultiplexing} Nell'host ricevente, si occupa di consegnare i segmenti ricevuti alla socket appropriata.
 	\paragraph{Multiplexing} Nell'host mittente, raccoglie i dati da varie socket, li incapsula con l'intestazione (usata poi nel demultiplexing).
-	\medskip\\
+	\newline
 	\begin{wrapfigure}{r}{0.3\textwidth}
 		\centering
-		\vspace{-30pt}
+		\vspace{-20pt}
 		\includegraphics[width=0.25\textwidth]{segmento-trasporto}
+		\vspace{-30pt}
 	\end{wrapfigure}
 	L’host riceve i datagrammi IP; ogni datagramma ha un indirizzo IP di origine e uno di destinazione, e trasporta 1 segmento a livello di trasporto, ogni segmento ha un numero di porta di origine e un numero di porta di destinazione. L’host usa gli indirizzi IP e i numeri di porta per inviare il segmento alla socket appropriata.
 	
@@ -390,6 +391,7 @@
 	Il demultiplexing senza connessione utilizza una socket UDP identificata da indirizzo IP di destinazione e numero della porta di destinazione. Quando l'host riceve il segmento UDP controlla il numero di porta nel segmento e poi lo invia alla socket correlata. Datagram IP con indirizzi IP e/o numeri di porta di origine differenti vengono inviati alla stessa socket.
 	\begin{center}
 		\includegraphics[width=0.7\linewidth]{socket-udp}
+		\text{Demultiplexing senza connessione}
 	\end{center}
 	\subsection{Demultiplexing orientato alla connessione}
 	Il demultiplexing orientato alla connessione utilizza una socket TCP identificata da quattro parametri: indirizzo IP e porta d'origine e indirizzo IP e porta di destinazione. L'host ricevente usa tutti e quattro i parametri per inviare il segmento alla socket appropriata. Un host server può supportare più socket TCP contemporanee. I server web hanno socket differenti per ogni connessione client, con HTTP non-persistente si avrà invece una socket differente per ogni richiesta.
@@ -525,6 +527,7 @@
 	
 	\verb|CongWin| è una funzione dinamica della congestione percepita. Il mittente percepisce la congestione dopo un evento di perdita, quindi un timeout o una ricezione di 3 ACK duplicati, e riduce di conseguenza la frequenza di invio (\verb|CongWin|).
 	\medskip\\Vengono utilizzati tre meccanismi: AIMD, partenza lenta e reazione agli eventi di timeout.
+	\newpage
 	\subsection{Partenza lenta}
 	\begin{wrapfigure}{r}{0.2\textwidth}
 		\centering
