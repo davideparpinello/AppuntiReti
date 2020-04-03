@@ -406,23 +406,147 @@
 
 	UDP, User Datagram Protocol, è un protocollo di trasporto "senza fronzoli", infatti ha un servizio di consegna best effort (miglior sforzo). Per questo i segmenti UDP possono essere perduti o consegnati fuori sequenza all'applicazione.\medskip\\ Essendo senza connessione non c'è handshaking tra mittente e destinatario, quindi ogni segmento UDP è gestito indipendentemente dagli altri.
 	\paragraph{Checksum UDP} Il checksum UDP serve per rilevare gli “errori” (bit alternati) nel segmento trasmesso, il segmento viene trattato come una sequenza di interi da 16 bit.
+
+	\section{Principi del trasferimento dati affidabile}
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{rdt-1}
+	\end{center}
+	\paragraph{Stato di Rdt} Lo stato successivo a quello corrente è determinato unicamente dall'evento successivo
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{rdt-stato}
+	\end{center}
+	\subsection{Rdt 1.0: trasferimento affidabile su canale affidabile}
+	Il canale sottostante è perfettamente affidabile e è presente un automa distinto per mittente e ricevente.
+	\subsection{Rdt 2.0: canale con errori nei bit}
+	Il canale sottostante potrebbe confondere i bit nei pacchetti, si utilizza quindi il checksum per rilevare gli errori. Una volta ricevuto, con la notifica positiva \textbf{ACK} il ricevente comunica espressamente al mittente che il pacchetto ricevuto è corretto mentre con la notifica negativa \textbf{NAK} comunica che il pacchetto contiene errori. Se il mittente riceve un NAK verrà ritrasmesso il pacchetto.
+	\medskip\\Con Rdt 2.0 sono stati introdotti nuovi meccanismi tra cui il rilevamento di errore e il feedback del destinatario (ACK e NAK).
+	\medskip\\ Rdt 2.0 però ha un difetto fatale: se i pacchetti NAK e ACK sono danneggiati il mittente non saprà cos'è successo; non basta però ritrasmettere la notifica perché sono possibili duplicati.
+	Il mittente ritrasmette quindi il pacchetto aggiungendo un numero di sequenza, e il ricevente lo scarterà se duplicato. Una volta inviato, il mittente aspetta la risposta del destinatario (\textit{stop and wait}).
+	\subsection{Rdt 2.1}
+	Il mittente aggiunge un numero di sequenza al pacchetto, saranno sufficienti due numeri (0 e 1). Dovrà poi controllare se gli ACK/NAK sono danneggiati e ricordarsi se il pacchetto corrente ha numero di sequenza 0 o 1.
+	\medskip\\Il ricevente deve invece controllare se il pacchetto ricevuto è duplicato, lo stato indicherà se il numero di sequenza atteso è 0 o 1. Il ricevente non potrà però sapere se il suo ultimo ACK/NAK è stato ricevuto correttamente dal mittente.
+	\subsection{Rdt 2.2: un protocollo senza NAK}
+	Ha le stesse funzionalità di Rdt 2.1, utilizzando solamente gli ACK. In sostituzione al NAK il destinatario invierà un ACK per l'ultimo pacchetto ricevuto correttamente, il destinatario invece deve includere esplicitamente il numero di sequenza con l'ACK. Un ACK duplicato presso il mittente determina la stessa azione del NAK, cioè ritrasmettere il pacchetto corrente.
+	 \subsection{Rdt 3.0: canali con errori e perdite}
+	 Può succedere che il canale sottostante smarrisca i pacchetti (dati o ACK). Per ovviare a ciò il mittente attende un ACK per un tempo ragionevole, dopodiché, se non ricevuto, ritrasmetterà il pacchetto.
+	 \medskip\\Se il pacchetto (o l'ACK) è solo in ritardo la trasmissione sarà duplicata, ma il problema è già gestita dai numeri di sequenza, che il destinatario specificherà anche nei pacchetti da riscontrare; è necessaria l'introduzione di un contatore.
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{rdt-2}
+		\includegraphics[width=0.7\linewidth]{rdt-3}
+	\end{center}
+	\subsection{Pipelining} Il mittente ammette più pacchetti in transito ancora da notificare, il loro numero di sequenza deve essere incrementale ed è presente un buffering dei pacchetti presso il mittente e il ricevente. Ci sono due forme generiche di protocolli con pipeline: \textit{Go-Back-N} e \textit{Ripetizione selettiva}.
+	\subsubsection{Go-Back-N}
+	\begin{itemize}
+		\item Il mittente può avere fino a N pacchetti senza ACK in pipeline
+		\item Il ricevente invia solo ACK cumulativi, non dà quindi l'ACK di un pacchetto se c'è un gap
+		\item Il mittente ha un timer per il pacchetto più vecchio senza ACK.
+	\end{itemize}
+	\subsubsection{Ripetizione selettiva}
+	\begin{itemize}
+		\item Il mittente può avere fino a N pacchetti senza ACK in pipeline
+		\item Il ricevente trasmette gli ACK solo sui singoli pacchetti.
+		\item Il mittente mantiene un timer per ciascun pacchetto che non ha ancora ricevuto un ACK, che alla scadenza farà ritrasmettere solo i pacchetti senza ACK.
+		\item Il ricevente accusa la ricevuta di ciascun singolo pacchetto.
+	\end{itemize}
+	\section{Trasporto orientato alla connessione: TCP}
+	\begin{itemize}
+		\item Implementa l'\textbf{Rdt 3.0} con pipelining
+		\item \textbf{Connessione punto-punto}: un mittente e un destinatario
+		\item Il flusso di byte è \textbf{affidabile} e in sequenza
+		\item Il \textbf{controllo di flusso e di congestione} del TCP definiscono la dimensione della finestra di \textbf{pipelining}
+		\item \textbf{Full-Duplex:} il flusso dei dati è bidirezionale nella stessa connessione e viene definita la dimensione massima del segmento (\textit{MSS})
+		\item \textbf{Orientato alla connessione:} l'handshaking inizializza lo stato di mittente e destinatario prima di scambiare i dati
+		\item \textbf{Flusso controllato:} il mittente non sovraccarica il destinatario
+	\end{itemize}
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{segmento-tcp}
+	\end{center}
+	Alcuni dettagli sul segmento TCP:
+	\begin{itemize}
+		\item \textbf{Lunghezza dell'intestazione:} serve per sapere se ci sono informazioni nella parte opzionale, in caso negativo sarà di default 20 (5 righe \(\cdot\) 4 byte = 20)
+		\item \textbf{Numero di sequenza:} numero del primo byte del segmento nel flusso di byte
+		\item \textbf{ACK:} numero di sequenza del prossimo byte atteso
+		\item Per calcolare il \textbf{timeout} si usa una media esponenziale ponderata
+	\end{itemize}
+	Il trasporto TCP crea un servizio di trasferimento dati affidabile sul servizio inaffidabile di IP. Le ritrasmissioni sono avviate da eventi di timeout e ACK duplicati.
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{eventi-tcp}
+	\end{center}
+	Il timeout spesso è relativamente lungo, si ha quindi un lungo ritardo prima che venga ritrasmesso il pacchetto perduto.
+	\medskip\\Gli ACK perduti vengono rilevati tramite gli ACK duplicati: il mittente spesso invia molti segmenti, se un segmento viene smarrito è probabile che ci saranno molti ACK duplicati. Se il mittente riceve 3 ACK duplicati per lo stesso dato si suppone che il segmento che segue il dato riscontrato è andato perduto e rispedirà quindi il pacchetto prima che scada il timer (metodo di \textbf{trasmissione rapida}. 
+	\subsection{TCP: controllo di flusso}
+	\begin{wrapfigure}{r}{0.4\textwidth}
+		\centering
+		\includegraphics[width=0.4\textwidth]{controllo-di-flusso}
+		\vspace{-20pt}
+	\end{wrapfigure}
 	
+	Il lato ricevente della connessione TCP ha un buffer di ricezione, quindi il processo applicativo potrebbe essere rallentato dalla lettura del buffer. Con il controllo di flusso il mittente non vuole sovraccaricare il buffer del destinatario, trasmettendo troppi dati troppo velocemente. Il servizio di corrispondenza delle velocità indica che la frequenza di invio deve corrispondere alla frequenza di lettura dell'applicazione ricevente.
+	\medskip\\Il destinatario comunica lo spazio disponibile includendo il valore \verb|RcvWindow| nei segmenti, il mittente limita i dati non riscontrati a \verb|RcvWindow| e garantisce che il buffer di ricezione non vada in overflow.
 	
+	\subsection{Gestione della connessione}
+	La connessione viene gestita mediante un Handshake a tre vie:
+	\begin{enumerate}
+		\item Il client invia un segmento SYN al server che specifica il numero di sequenza iniziale, non viene inviato nessun dato
+		\item Il server riceve il SYN e risponde con un segmento SYNACK e successivamente alloca i buffer
+		\item Il client riceve SYNACK e risponde con un ACK che può anche contenere dati
+	\end{enumerate}
+	Per chiudere una connessione:
+	\begin{enumerate}
+		\item Il client invia un segmento di controllo FIN al server
+		\item Il server riceve il segmento FIN e risponde con un ACK, chiude la connessione e invia un FIN
+		\item Il client riceve il FIN e risponde con un ACK
+		\item Il server riceve l'ACK e chiude la connessione
+	\end{enumerate}
 	
+	\section{Principi del controllo di congestione}
+	Per congestione si intende quando troppe sorgenti trasmettono troppi dati a una velocità talmente elevata che la rete non è in grado di gestirli. I sintomi della congestione possono essere pacchetti smarriti (causati da overflow nei buffer dei router) o lunghi ritardi (accodamento nei buffer).
+	\medskip\\I due principali approcci al controllo di congestione sono:
+	\begin{itemize}
+		\item \textbf{Controllo di congestione punto-punto}
+		\begin{itemize}
+			\item Nessun supporto esplicito dalla rete
+			\item La congestione è dedotta osservando le perdite e i ritardi nei sistemi terminali
+			\item Metodo adottato da TCP
+		\end{itemize}
+		\item \textbf{Controllo di congestione assistito dalla rete}
+		\begin{itemize}
+			\item I router forniscono un feedback ai sistemi terminali
+			\item Utilizzato un singolo bit per indicare la congestione
+			\item Viene comunicata in modo esplicito al mittente la frequenza trasmissiva
+		\end{itemize}
+	\end{itemize}
+	\section{Controllo di congestione in TCP (AIMD)}
+	Il controllo di congestione in TCP viene effettuato mediante l'approccio AIMD; ovvero incremento additivo e decremento moltiplicativo.
+	\medskip\\Consiste nell'aumentare il tasso trasmissivo sondando la rete fino a quando non si verifica una perdita. Secondo l'\textbf{incremento adattivo} fa aumentare la \verb|CongWin| di 1 MSS a ogni RTT in assenza di perdita, mentre secondo il \textbf{decremento moltiplicativo} riduce a metà \verb|CongWin| dopo un evento di perdita. La formula diventa quindi approssimativamente:
+	\begin{displaymath}
+  		\text{Frequenza d'invio = }\frac{CongWin}{RTT}\text{ byte/sec}
+	\end{displaymath}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	\verb|CongWin| è una funzione dinamica della congestione percepita. Il mittente percepisce la congestione dopo un evento di perdita, quindi un timeout o una ricezione di 3 ACK duplicati, e riduce di conseguenza la frequenza di invio (\verb|CongWin|).
+	\medskip\\Vengono utilizzati tre meccanismi: AIMD, partenza lenta e reazione agli eventi di timeout.
+	\subsection{Partenza lenta}
+	\begin{wrapfigure}{r}{0.2\textwidth}
+		\centering
+		\includegraphics[width=0.2\textwidth]{partenza-lenta}
+		\vspace{-30pt}
+	\end{wrapfigure}
+	Quando si stabilisce una connessione (\verb|CongWin| = 1 MSS) la frequenza aumenta in modo esponenziale fino a quando non si verifica una perdita: infatti \verb|CongWin| raddoppia a ogni RTT incrementandolo per ogni ACK ricevuto.
+	\medskip\\Dopo 3 ACK duplicati (perdita), \verb|CongWin| è ridotto a metà e la finestra cresce linearmente. Se si verifica però un timeout, \verb|CongWin| viene impostato a 1 MSS crescendo in modo esponenziale fino a una soglia, dopo la quale crescerà linearmente.
+	\medskip\\La filosofia seguita è quella che 3 ACK duplicati indicano la capacità della rete di consegnare qualche segmento, mentre un timeout prima di 3 ACK duplicati è "più allarmante".
+	\medskip\\La soglia impostata è variabile, ma in caso di perdita la soglia diventa \(\frac{1}{2}\) di \verb|CongWin| appena prima dell'evento.
+	\subsection{Riassunto: controllo di congestione}
+	\begin{itemize}
+		\item Quando \verb|CongWin| è sotto la soglia, il mittente è nella fase di \textbf{partenza lenta}; la finestra cresce in modo esponenziale.
+		\item Quando \verb|CongWin| è sopra la soglia, il mittente p nella fase di \textbf{congestion avoidance}; la finestra cresce in modo lineare.
+		\item Quando si verificano \textbf{tre ACK duplicati}, il valore della soglia viene impostato a \verb|CongWin/2| e \verb|CongWin| viene impostata al valore della soglia.
+		\item Quando si verifica un \textbf{timeout}, il valore della soglia viene impostato a \verb|CongWin/2| e \verb|CongWin| è impostata a 1 MSS.
+	\end{itemize}
+	\subsection{Throughput TCP}
+	Il throughput medio di TCP varia in funzione della dimensione della finestra e di RTT. Se, dopo una perdita, la finestra è W, il throughput sarà W/RTT. Dopo la perdita la finestra diventerà W/2 e il throughput di conseguenza diventa W/2RTT. Il throughput medio è quindi 0.75 W/RTT
+	\subsection{Equità di TCP}
+	\paragraph{Equità} se K sessioni TCP condividono lo stesso collegamento con ampiezza di banda R (collo di bottiglia), ogni sessione dovrà avere una frequenza trasmissiva media pari a R/K.
+	\medskip\\TCP infatti è equo perché con due connessioni in concorrenza l'incremento additivo ha una pendenza pari a 1, mentre il decremento moltiplicativo riduce il throughput in modo proporzionale.
+	\medskip\\Proprio per questo le applicazioni multimediali spesso usano UDP, poiché non vogliono che il loro tasso trasmissivo venga ridotto ma tollerano la perdita di pacchetti.
 	
 \end{document}
