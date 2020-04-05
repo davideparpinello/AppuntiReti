@@ -269,6 +269,18 @@
 		User-agent: Mozilla/4.0
 		Connection: close Accept-language:fr
 	\end{verbatim}
+	\subsubsection{Tipi di metodi}
+	La versione HTTP/1.0 fornisce i seguenti metodi per effettuare le richiese:
+	\begin{itemize}
+		\item \textbf{GET:} richiesta solamente mediante URL
+		\item \textbf{POST:} vengono inseriti nel corpo della richiesta anche dati da inviare al server
+		\item \textbf{HEAD:} chiede al server di escludere l'oggetto richiesto dalla risposta
+	\end{itemize}
+	Nella versione HTTP/1.1 vengono aggiunti i seguenti metodi:
+	\begin{itemize}
+		\item \textbf{PUT:} include il file nel corpo dell'entità e lo invia al percorso specificato nel campo URL
+		\item \textbf{DELETE:} cancella il file specificato nel campo URL
+	\end{itemize}
 	\subsubsection{Risposta HTTP}
 	\begin{verbatim}
 		HTTP/1.1 200 OK
@@ -279,6 +291,15 @@
 		Content-Length: 6821
 		Content-Type: text/html
 	\end{verbatim}
+	\subsubsection{Codici di stato della risposta HTTP}
+	Nella prima riga del messaggio di risposta sono inclusi codice di stato e relativa espressione in base all'esito della richiesta. Alcuni codici sono i seguenti:
+	\begin{itemize}
+		\item \textbf{200 OK:} La richiesta ha avuto successo, oggetto inviato nella risposta
+		\item \textbf{301 Moved Permanently:} Oggetto trasferito nella nuova posizione indicata da \verb|Location|
+		\item \textbf{400 Bad Request:} il messaggio di richiesta non è stato compreso dal server
+		\item \textbf{404 Not Found:} il documento richiesto non si trova su questo server
+		\item \textbf{505 HTTP Version Not Supported:} il server non ha la versione di protocollo HTTP indicata
+	\end{itemize}
 	\subsection{Cookies}
 	\begin{center}
 		\includegraphics[width=0.7\linewidth]{cookies.png}
