@@ -435,7 +435,7 @@ Usando le VLAN è interessante poter creare una VLAN relativa alla gestione dell
 
 ATM e MPLS sono delle soluzioni che consentono di generare circuiti virtuali utilizzando l'approccio a commutazione di pacchetto, consentono l'allocazione delle risorse per i flussi e la gestione della qualità del servizio. Queste tecnologie possono essere integrate nelle reti IP, attualmente sono utilizzate per interconnettere alcune zone della rete e non sono visibili all'utente.
 
-### Trasferimento asincrono: ATM
+### Trasferimento asincrono (ATM)
 
 ATM è nato verso metà anni 80 con l'obbiettivo di estendere la tecnologia delle reti telefoniche in modo tale da essere utilizzata per reti dati, progettando reti in grado di trasportare file audio e video in tempo reale e supportare file di testo e immagini. Può essere considerata la tecnologia telefonica di ultima generazione e viene tutt'ora usata nelle reti ADSL, consente la realizzazione di circuiti virtuali e l'implementazione del QoS.
 
@@ -496,5 +496,11 @@ Raggiunto il router di uscita verrà risalita la pila protocollare, incontrando 
 
 Per il corretto funzionamento di IP su ATM sarà necessario quindi un protocollo ARP dedicato ad ATM e dei router dotati di uno stack protocollare e un'interfaccia di rete compatibili con lo standard.
 
+### Multiprotocol Label Switching (MPLS)
 
+L'obiettivo iniziale del protocollo MPLS è quello di velocizzarre l'inoltro IP usando un'etichetta di lunghezza stabilita (invece dell'indirizzo di destinazione IP).
+
+![Schermata 2020-05-24 alle 13.31.20](/Users/davideparpinello/Library/Application Support/typora-user-images/Schermata 2020-05-24 alle 13.31.20.png)
+
+I router a commutazione di etichetta (router MPLS) inviano i pacchetti analizzando l'etichetta MPLS nella tabella d'instradamento, passando il datagramma all'interfaccia corretta. Viene utilizzato un particolare protocollo RSVP-TE (estensione di RSVP) per distribuire etichette tra router, che consente l'invio di pacchetti lungo reti non utilizzabili con IP standard. Questi router coesistono coi router "solo-IP".
 
