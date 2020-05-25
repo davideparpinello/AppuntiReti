@@ -1,3 +1,6 @@
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+
 \documentclass{report}
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -7,6 +10,7 @@
 \usepackage{float}
 \usepackage{wrapfig}
 \usepackage{tabularx}
+\usepackage{xcolor}
 
 \graphicspath{ {./images/} }
 \hypersetup{
@@ -22,11 +26,18 @@
 \usepackage{enumitem}
 \newcommand{\code}{\texttt}
 
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+
 \begin{document}
 	
 	\begin{titlepage}
 	\centering
-	\includegraphics[width=0.7\textwidth, keepaspectratio]{logounitn.jpg}
+	\includegraphics[width=0.7\textwidth]{logounitn.eps}
 
 	\vspace{1.6cm}
 	\LARGE{Dipartimento di Ingegneria e Scienza dell'Informazione\\}
@@ -589,9 +600,1992 @@
 	\paragraph{Equità} se K sessioni TCP condividono lo stesso collegamento con ampiezza di banda R (collo di bottiglia), ogni sessione dovrà avere una frequenza trasmissiva media pari a R/K.
 	\medskip\\TCP infatti è equo perché con due connessioni in concorrenza l'incremento additivo ha una pendenza pari a 1, mentre il decremento moltiplicativo riduce il throughput in modo proporzionale.
 	\medskip\\Proprio per questo le applicazioni multimediali spesso usano UDP, poiché non vogliono che il loro tasso trasmissivo venga ridotto ma tollerano la perdita di pacchetti.
+	
+	\chapter{Il livello di Rete}
+	
+	\hypertarget{header-n0}{%
+\section{Introduzione}\label{header-n0}}
+
+\hypertarget{header-n2}{%
+\subsection{Funzioni chiave del livello di rete}\label{header-n2}}
+
+Il livello di rete svolge due funzioni principali:
+
+\begin{itemize}
+\item
+  \textbf{inoltro (o forwarding):} trasferimento dei pacchetti
+  dall'input di un router all'output appropriato
+\item
+  \textbf{instradamento (o routing):} determinare il percorso seguito
+  dai pacchetti da origine a destinazione
+\end{itemize}
+
+Possiamo, per analogia, considerare l'inoltro come l'attraversamento di
+uno svincolo durante un viaggio e l'instradamento come la pianificazione
+dell'intero viaggio.
+
+Per effettuare queste funzioni, viene inserito nell'header del pacchetto
+un'indicazione per l'instradamento, che verrà utilizzata dal router per
+fare un match con la sua tabella di routing.
+
+\begin{center}
+		\includegraphics[width=0.5\linewidth]{instradamento}
+	\end{center}
+
+Una terza funzione importante del livello di rete è
+\textbf{l'impostazione della connessione}, viene utilizzata però solo in
+alcune reti (come ATM o X.25). Prima della trasmissione dei dati viene
+stabilita una connessione virtuale tra i due host.
+
+\hypertarget{header-n13}{%
+\subsection{Modelli di servizio}\label{header-n13}}
+
+Il livello di rete offre diversi modelli di servizio: possiamo ricordare
+il servizio \textbf{best effort} utilizzato sulla rete internet attuale
+e i modelli \textbf{CBR (Constant), VBR (Variable), ABR (Available),
+UBR} utilizzati in ATM, per diversi anni utilizzata alternativa a
+Internet.
+
+\hypertarget{header-n15}{%
+\section{Reti a circuito virtuale e datagramma}\label{header-n15}}
+
+Le reti a datagramma offrono solo il servizio senza connessione, mentre
+le reti a \textbf{circuito virtuale} offrono il servizio con
+connessione. Questa è realizzata da host a host e non si può scegliere
+(il livello di rete non può fornirli entrambi contemporaneamente).
+
+\hypertarget{header-n17}{%
+\subsection{Reti a circuito virtuale}\label{header-n17}}
+
+Le reti a circuito virtuale (come ATM) sono reti analoghe ai circuiti
+telefonici che consentono buone prestazioni e vedono il coinvolgimento
+della rete: il pacchetto ha un numero di VC nell'header utilizzato e
+sostituito dai router, questo numero consente di effettuare
+multiplexing.
+
+I router di queste reti mantengono le informazioni sullo stato delle
+connessioni, infatti ogni router ha una tabella di inoltro con tutti i
+VC utilizzati.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{circuiti-virtuali}
+	\end{center}
+
+\hypertarget{header-n21}{%
+\subsubsection{Protocolli di segnalazione}\label{header-n21}}
+
+I protocolli di segnalazione, non utilizzati sulla rete Internet, sono
+dei messaggi utilizzati per gestire la connessione sui VC quindi avvio,
+mantenimento e chiusura dei circuiti.
+
+\hypertarget{header-n23}{%
+\subsection{Reti a datagramma}\label{header-n23}}
+
+Nelle reti a datagramma non avviene l'impostazione di chiamata: i dati
+vengono inviati quando si vuole e quando la rete può li inoltrerà. In
+aggiunta, la rete è stateless (senza connessione) e i pacchetti vengono
+inoltrati utilizzando l'indirizzo di destinazione.
+
+Le tabelle di inoltro sono costituite da 4 miliardi di indirizzi
+possibili (32 bit), queste tabelle spesso sono realizzate ad intervalli.
+Per semplificazione si preferisce effettuare il matching confrontando i
+prefissi tra datagram e tabella, nel caso in cui i bit siano uguali si
+aumenta il numero di bit confrontati.
+
+\hypertarget{header-n26}{%
+\subsection{Confronto tra le due tipologie}\label{header-n26}}
+
+\begin{itemize}
+\item
+  \textbf{Circuiti virtuali (ATM)}
+
+  \begin{itemize}
+  \item
+    eredita dalla telefonia
+  \item
+    requisiti più stringenti in termini di tempo e affidabilità,
+    utilizzate per servizi garantiti
+  \item
+    i terminali sono stupidi: la complessità è interna alla rete (es.
+    controllo di flusso)
+  \end{itemize}
+\item
+  \textbf{Datagrammi (internet)}
+
+  \begin{itemize}
+  \item
+    scambio di dati tra calcolatori
+  \item
+    i servizi sono elastici: pochi requisiti di tempo
+  \item
+    L'interconnessione è semplice: adattabile, controllo degli errori,
+    rete interna semplice ed ottimizzata alla velocità
+  \item
+    svariati tipi di link, servizio non uniforme
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{header-n48}{%
+\section{Cosa si trova all'interno dei router?}\label{header-n48}}
+
+\hypertarget{header-n49}{%
+\subsection{Architettura}\label{header-n49}}
+
+I router svolgono due funzioni principali:
+
+\begin{itemize}
+\item
+  far girare i protocolli e gli algoritmi di instradamento (RIP, OSPF,
+  BGP)
+\item
+  inoltrare i datagram dagli input agli output
+\end{itemize}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{architettura-router}
+	\end{center}
+
+\hypertarget{header-n57}{%
+\subsection{Porte d'ingresso}\label{header-n57}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{ingresso-router}
+	\end{center}
+
+Le porte d'ingresso dei router vengono utilizzate per effettuare una
+commutazione decentralizzata:
+
+\begin{itemize}
+\item
+  determinare la porta d'uscita dei pacchetti utilizzando le
+  informazioni della tabella d'inoltro
+\item
+  obiettivo: completare l'elaborazione allo stesso tasso della linea
+\item
+  si presenta un \textbf{accodamento} se il tasso d'arrivo dei pacchetti
+  è maggiore del tasso d'inoltro
+\end{itemize}
+
+\hypertarget{header-n67}{%
+\subsection{Tecniche di commutazione}\label{header-n67}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{commutazione}
+	\end{center}
+
+La tecnica di commutazione \textbf{in memoria} è la più semplice ma la
+meno performante, la tecnica \textbf{a crossbar} è invece la più
+efficace.
+
+\hypertarget{header-n70}{%
+\subsubsection{Commutazione in memoria}\label{header-n70}}
+
+La tecnica di commutazione in memoria veniva utilizzata nelle prime
+generazioni di router, i quali erano tradizionali calcolatori. La
+commutazione veniva controllata dalla CPU: il pacchetto veniva copiato
+in memoria e successivamente mandato in uscita con una frequenza totale
+di \textbf{B/2}.
+
+\hypertarget{header-n72}{%
+\subsubsection{Commutazione tramite bus}\label{header-n72}}
+
+La commutazione tramite bus si basa sull'utilizzo di un bus condiviso
+tra tutte le porte: siamo in presenza di una \textbf{contesa per il
+bus}, la cui banda limita di conseguenza la banda della commutazione.
+
+Un esempio di router è il Cisco 5600, che opera con un bus da 32 Gbps,
+sufficiente per reti d'accesso o aziendali.
+
+\hypertarget{header-n75}{%
+\subsubsection{Commutazione attraverso rete
+d'interconnessione}\label{header-n75}}
+
+Questa tecnica supera il limite di banda di un bus condiviso. Viene
+utilizzato un \textbf{crossbar switch}, ovvero una rete
+d'interconnessione di \emph{2n} bus che collegano \emph{n} porte
+d'entrata a \emph{n} porte d'uscita.
+
+Un esempio come il Cisco 12000 raggiunge i 60 Gbps nella struttura di
+commutazione.
+
+\hypertarget{header-n78}{%
+\subsection{Porte d'uscita}\label{header-n78}}
+
+Le porte d'uscita implementano le funzioni di accodamento (se la
+frequenza di pacchetti in arrivo è superiore a quella del collegamento
+uscente) e di schedulatore di pacchetti (stabilire l'ordine di
+trasmissione dei pacchetti).
+
+\hypertarget{header-n80}{%
+\subsection{Quale deve essere la capacità dei
+buffer?}\label{header-n80}}
+
+Secondo la regola spannometrica della RFC 3439 la capacità deve essere
+
+\[media \space RTT \space*\space capacita \space C\]
+
+dove C è la capacità del collegamento.
+
+Secondo attuali raccomandazioni, dati N flussi la capacità dei buffer
+deve essere
+
+\[\frac{RTT*C}{\sqrt{N}}\]
+
+\hypertarget{header-n86}{%
+\section{Protocollo Internet (IP)}\label{header-n86}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{liv-rete}
+	\end{center}
+
+\hypertarget{header-n88}{%
+\subsection{Formato dei datagrammi}\label{header-n88}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{datagram-ip}
+	\end{center}
+
+I datagrammi IP utilizzano 16 byte, hanno quindi una dimensione massima
+di 64 KB. Il campo del protocollo di livello superiore indica il
+protocollo utilizzato dal pacchetto trasmesso, quindi TCP/UDP. Avendo a
+disposizione 32 bit per gli indirizzi abbiamo in totale poco più di 4
+miliardi di indirizzi.
+
+\hypertarget{header-n91}{%
+\subsubsection{Frammentazione dei datagrammi}\label{header-n91}}
+
+La frammentazione dei datagrammi è una funzione importante poiché
+consente il trasporto da parte del livello sottostante (collegamento) di
+datagrammi più grandi di quanto ne potrebbe portare.
+
+Se la \textbf{MTU} (Maximum Transmission Unit, quantità massima di dati
+che un frame a livello di collegamento può portare) è più bassa della
+dimensione del datagram IP, il livello 3 frammenta i datagram troppo
+grossi in altri datagram, che verranno riassemblati solo a destinazione.
+Ogni router della rete può frammentare in base alle sue esigenze.
+
+Quando viene effettuata la frammentazione viene settato a 1 il flag
+relativo nell'header di ogni pacchetto inviato (tranne l'ultimo) e in
+ognuno viene indicato lo spiazzamento (utilizzato per riposizionare il
+datagramma nel giusto payload e in posizione corretta).
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+		\centering
+		\includegraphics[width=0.4\textwidth]{frammentazione}
+		\vspace{-30pt}
+	\end{wrapfigure}
+
+Il destinatario ricostruirà il datagram originale riconoscendo gli ID
+comuni, sapendo che se lo spiazzamento è uguale a 0 sarà il primo,
+mentre se il flag sarà uguale a 0 sarà l'ultimo.
+
+\hypertarget{header-n97}{%
+\subsection{Indirizzamento IPv4}\label{header-n97}}
+
+L'indirizzamento IPv4 consente il posizionamento dei dispositivi nella
+rete globale: infatti, ogni \textbf{interfaccia} di ciascun host
+collegato su Internet ha un IP globalmente univoco. Questo indirizzo è
+costituito da 32 bit.
+
+L'interfaccia è il confine tra host e collegamento fisico: i router
+devono avere almeno due interfacce (2 indirizzi IP) mentre gli host, in
+genere, hanno una sola interfaccia.
+
+\hypertarget{header-n100}{%
+\subsubsection{Sottoreti}\label{header-n100}}
+
+Le sottoreti consentono di dividere l'indirizzamento in Internet in
+parti a sè stanti. Per dare una definizione appropriata possiamo
+considerare le sottoreti come delle reti isolate i cui punti terminali
+sono collegati all'interfaccia di un host o un router.
+
+Questo è possibile suddividendo gli indirizzi IP in due parti: una parte
+di \textbf{sottorete}, condivisa fino a un certo punto, e una parte di
+\textbf{host}.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{subnet}
+	\end{center}
+
+La \textbf{maschera di rete} viene utilizzata per indicare quanti bit da
+sinistra contengono il prefisso condiviso tra tutti gli host della
+sottorete.
+
+\hypertarget{header-n105}{%
+\paragraph{CIDR}\label{header-n105}}
+
+CIDR, o (Classless Interdomain Routing), è una strategia di assegnazione
+degli indirizzi che definisce il prefisso comune agli apparati in una
+rete.
+
+Ha una struttura del tipo \emph{a.b.c.d/x} dove x indica il numero di
+bit della prima parte dell'indirizzo (parte subnet).
+
+\begin{center}
+		\includegraphics[width=0.5\linewidth]{cidr}
+	\end{center}
+
+La strategia CIDR facilita ai router la costruzione delle tabelle di
+inoltro e consente a un PC di sapere se un host si trova nella sua
+stessa sottorete (facendo l'AND tra indirizzo e maschera di rete troverà
+il prefisso che confronterà).
+
+\hypertarget{header-n110}{%
+\subsubsection{Assegnazione degli indirizzi}\label{header-n110}}
+
+L'assegnazione degli indirizzi può avvenire in modalità manuale o
+mediante \textbf{DHCP}. Il DHCP (Dynamic Host Configuration Protocol)
+consente di ottenere dinamicamente un IP da un server (plug-and-play),
+l'IP avrà una scadenza e potrà essere rinnovato, consente il riuso e il
+risparmio di indirizzi.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{dhcp}
+	\end{center}
+
+L'amministratore di rete o l'ISP ha a disposizione un blocco di IP da
+utilizzare nelle subnet: se sono privati non si pone alcun problema,
+mentre se sono pubblici questi dovranno essere comprati da altri ISP. A
+sua volta, un ISP o un amministratore può dividere il blocco a sua
+disposizione in altri sottoblocchi contigui.
+
+\hypertarget{header-n115}{%
+\paragraph{Indirizzamento gerarchico}\label{header-n115}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{ind-gerarchico}
+	\end{center}
+
+\hypertarget{header-n117}{%
+\paragraph{Indirizzi IP alla fonte}\label{header-n117}}
+
+Come fa un ISP a ottenere indirizzi IP? Si rivolge all'ICANN (Internet
+Corporation for Assigned Names and Numbers), ente che si occupa di
+allocare i blocchi di indirizzi, gestire i server DNS radice, assegnare
+e risolvere dispute sui domini.
+
+\hypertarget{header-n119}{%
+\subsubsection{Traduzione degli indirizzi di rete
+(NAT)}\label{header-n119}}
+
+La traduzione degli indirizzi di rete consente ai router di apparire a
+Internet con un unico indirizzo IP, quindi tutto il traffico della
+sottorete avrà lo stesso indirizzo. Si utilizzano all'interno classi di
+IP private come \emph{10.0.0.0/8} e \emph{192.168.0.0/16}.
+
+Utilizzando il NAT il router abiulitato nasconde i dettagli della rete
+domestica al mondo esterno, portando alcuni vantaggi:
+
+\begin{itemize}
+\item
+  non serve allocare intervalli di indirizzi da un ISP
+\item
+  è possibile riconfigurare la rete privata senza comunicarlo a Internet
+\item
+  è possibile cambiare ISP senza modificare la configurazione della rete
+  privata
+\item
+  i dispositivi interni non sono indirizzabili e visibili dall'esterno
+  (sicurezza)
+\end{itemize}
+
+Per implementare il NAT il router, all'arrivo di un datagramma, genera
+una nuova porta d'origine e sostituisce l'IP di origine con il proprio
+IP sul lato WAN e la porta di origine iniziale con il nuovo numero.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{nat}
+	\end{center}
+
+Il numero di porta è costituito da 16 bit, quindi sono possibili più di
+60000 connessioni simultanee. NAT è contestato per diversi motivi:
+
+\begin{itemize}
+\item
+  i router dovrebbero lavorare solo a livello 3+
+\item
+  viola il punto-punto, causando interferenze a P2P (serve una specifica
+  configurazione)
+\item
+  si dovrebbe usare alternativamente IPv6
+\end{itemize}
+
+\hypertarget{header-n141}{%
+\paragraph{Collegamenti dall'esterno}\label{header-n141}}
+
+Un problema importante del NAT è l'impossibilità di effettuare
+collegamenti dall'esterno a un host interno alla rete (come un server
+web). Per effettuare questo si possono implementare alcune soluzioni
+
+\begin{itemize}
+\item
+  impostare delle configurazioni statiche per inoltrare le richieste
+  entranti a determinate porte dell'host (tabelle di forwarding)
+\item
+  utilizzare \textbf{UPnP} (Universal Plug n Play), parte integrante di
+  IGD (Internet Gateway Device protocol), che consente agli host
+  nascosti da un NAT di chiedere in automatico di scrivere una riga
+  nella tabella di forwarding
+\item
+  \textbf{relay} (utilizzato da Skype), prevede un punto di riferimento
+  a cui entrambi i client si collegano
+\end{itemize}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{skype}
+	\end{center}
+
+\hypertarget{header-n151}{%
+\subsection{ICMP}\label{header-n151}}
+
+ICMP (Internet Control Message Protocol) consente lo scambio di
+informazioni relative al controllo della rete, come errori o ping. ICMP
+è considerato parte di IP, i messaggi hanno un campo tipo e un campo
+codice mentre l'intestazione e i primi 8 byte sono uguali al datagram
+IP.
+
+\hypertarget{header-n153}{%
+\subsubsection{Traceroute e ICMP}\label{header-n153}}
+
+Il programma invia più datagrammi con un TTL incrementale, ogni router
+scarterà il datagram e invierà all'origine un'allerta ICMP la quale
+calcolerà il RTT. Ogni router viene calcolato per 3 volte per avere una
+media e il programma si fermerà una volta arrivato a destinazione,
+ovvero quando l'host invierà un pacchetto ICMP di porta non
+raggiungibile.
+
+\hypertarget{header-n155}{%
+\subsection{IPv6}\label{header-n155}}
+
+L'esigenza principale che ha portato allo sviluppo di IPv6 è stato lo
+spazio di indirizzamento IP a 32 bit che stava cominciando ad esaurirsi.
+Oltre a questo, altre motivazioni erano un header più leggero per
+velocizzare elaborazione e inoltro, e un agevolazione del QoS.
+
+\hypertarget{header-n157}{%
+\subsubsection{Formato dei datagrammi}\label{header-n157}}
+
+I datagram IP sono costituiti da 40 byte di header a lunghezza fissa e
+non è consentita la frammentazione.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{ipv6}
+	\end{center}
+
+Alcuni campi nuovi sono la \textbf{priorità di flusso},
+l'\textbf{etichetta di flusso} che identifica flussi particolari (non è
+chiaro il concetto di flusso) e l'\textbf{intestazione successiva} che
+identifica il protocollo di destinazione dei contenuti.
+
+Inoltre, è stato rimosso il checksum poiché ridondante, il campo opzioni
+non è più parte dell'intestazione ma può venire indicato in
+"intestazioni successive" ed è stato introdotto \textbf{ICMPv6} con
+nuovi codici che assume le funzionalità di IGMP (gestisce l'ingresso e
+l'uscita di host dai gruppi multicast).
+
+\hypertarget{header-n162}{%
+\subsubsection{Passaggio a IPv6}\label{header-n162}}
+
+Non è possibile aggiornare simultaneamente tutti i router, poiché
+servirebbe stabilire una giornata "di passaggio", attualmente
+impossibile. Per questo si utilizza il \textbf{tunneling}: IPv6 viene
+trasportato come payload in datagram IPv4.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{tunneling}
+	\end{center}
+
+\hypertarget{header-n165}{%
+\section{Algoritmi di instradamento}\label{header-n165}}
+
+Gli algoritmi di instradamento sono implementati nelle reti a
+commutazione di pacchetto, grazie all'inserimento di un valore
+nell'header di livello 3, che verrà letto e confrontato con le varie
+tabelle di instradamento.
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+		\centering
+		\vspace{-10pt}
+		\includegraphics[width=0.4\textwidth]{grafo-rete}
+		\vspace{-10pt}
+	\end{wrapfigure}
+
+Possiamo assumere una rete come un grafo dove i nodi sono i router e gli
+archi sono i collegamento. Gli algoritmi di instradamento si occupano di
+calcolare il cammino a costo minimo tra due router.
+
+Questi algoritmi possono essere classificati in più modalità: globali o
+decentralizzati e statici o dinamici:
+
+\begin{itemize}
+\item
+  un algoritmo \textbf{globale} riceve in ingresso tutti i collegamenti
+  tra nodi e loro costi, un esempio sono gli algoritmi
+  \textbf{link-state}
+\item
+  in un algoritmo \textbf{decentralizzato} ogni nodo elabora un vettore
+  di stima dei costi verso tutti gli altri nodi, quindi il cammino a
+  costo minimo viene calcolato in modo distribuito e iterativo. Un
+  esempio sono gli algoritmi \textbf{distance-vector}
+\item
+  in un algoritmo \textbf{statico} i cammini cambiano molto raramente
+\item
+  gli algoritmi \textbf{dinamici} determinano gli instradamenti in base
+  al traffico e alla topologia della rete
+\end{itemize}
+
+\hypertarget{header-n179}{%
+\subsection{Stato del collegamento (link state)}\label{header-n179}}
+
+Un esempio di algoritmo link state è l'\textbf{algoritmo di Dijkstra} il
+quale prevede che la topologia di rete e i costi siano noti a tutti i
+nodi mediante il "link-state broadcast" e che tutti i nodi dispongano
+delle stesse informazioni.
+
+L'algoritmo calcola il cammino a costo minimo dall'origine a tutti gli
+altri nodi, creando una \textbf{tabella d'inoltro} per quel nodo.
+Essendo iterativo, dopo la k-esima iterazione i cammini a costo minimo
+sono noti a k nodi di destinazione.
+
+I costi di ogni collegamento possono essere:
+
+\begin{itemize}
+\item
+  predefiniti dal provider
+\item
+  tutti uguali
+\item
+  costi effettivi (satellite)
+\item
+  definiti dal ritardo di collegamento
+\end{itemize}
+
+La regola è evitare che i costi dipendano dal routing.
+
+La sua complessità con n nodi è data da
+
+\[O(nlogn)\]
+
+Può presentare delle oscillazioni ad esempio nel costo del collegamento
+in base alla quantità di traffico trasportato.
+
+\hypertarget{header-n196}{%
+\subsection{Algoritmo con vettore distanza}\label{header-n196}}
+
+Un esempio di algoritmo con vettore distanza è la \textbf{formula di
+Bellman-Ford} (o a programmazione dinamica) che definisce il costo del
+percorso a costo minimo da x a y
+
+\[d_x(y) = min_v\{c(x,v) + d_v(y)\}\]
+
+dove min\emph{v riguarda tutti i vicini di x, c(x,v) comprende il costo
+di tutti i collegamenti diretti da x a v e d}v(y) è il percorso a costo
+minimo da v a y.
+
+L'algoritmo viene eseguito nel modo seguente: il nodo x contatta tutti i
+vicini v e si fa dare da ognuno di essi ogni costo per andare a y,
+successivamente valuterà tutte le alternative.
+
+L'idea di base è che ogni nodo invia una copia del proprio vettore
+distanza a ogni vicino, quando un nodo riceve un nuovo vettore distanza
+da un vicinolo salva e usa la formula B-F per aggiornare il proprio DV.
+Finché tutti i nodi continuano a cambiare i propri DV in maniera
+asincrona, ciascuma stima Dx(y) coverge a d\_x(y).
+
+L'algoritmo con vettore distanza è \textbf{iterativo ed asincrono},
+poiché ogni iterazione locale è causata dal cambio del costo di un link
+locale o dalla ricezione di un DV aggiornato; è \textbf{distribuito}
+poiché ogni nodo aggiorna i suoi vicini solo quando il suo DV cambia.
+
+\hypertarget{header-n203}{%
+\subsubsection{Modifica dei costi}\label{header-n203}}
+
+Quando un nodo rileva un cambiamento nel costo dei collegamenti allora
+aggiorna il proprio vettore distanza e lo trasmetterà ai suoi vicini,
+secondo il principio che "le buone notizie viaggiano in fretta".
+
+\hypertarget{header-n205}{%
+\subsubsection{Confronto tra algoritmi LS e DV}\label{header-n205}}
+
+\begin{itemize}
+\item
+  Complessità dei messaggi
+
+  \begin{itemize}
+  \item
+    LS con n nodi, E collegamenti implica l'invio di O(nE) messaggi
+  \item
+    DV richiede scambi tra nodi adiacenti, quindi il tempo di
+    convergenza può variare
+  \end{itemize}
+\item
+  Velocità di convergenza
+
+  \begin{itemize}
+  \item
+    LS: l'algoritmo O(n2) richiede O(nE) messaggi, ci possono essere
+    oscillazioni di velocità
+  \item
+    DV può convergere lentamente, può presentare cicli d'instradamento e
+    può presentare il problema del conteggio all'infinito
+  \end{itemize}
+\item
+  \textbf{Robustezza:} cosa avviense se un router funziona male
+
+  \begin{itemize}
+  \item
+    LS: un router può comunicare via broadcast un costo sbagliato per
+    uno dei suoi collegamenti (non per altri), i nodi si occupano di
+    calcolare solo le proprie tabelle
+  \item
+    DV: un nodo può comunicare cammini a costo minimo errati a tutte le
+    destinazioni, la tabella di ogni nodo può essere usata da altri
+    quindi \underline{un calcolo errato si diffonde per l'intera rete}
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{header-n228}{%
+\subsection{Instradamento gerarchico}\label{header-n228}}
+
+Fino ad ora abbiamo visto la rete come un insieme di router
+interconnessi, con una visione omogenea, ma nella pratica le cose non
+sono così semplici. Nella realtà ci sono 200 milioni di destinazioni,
+quindi archiviare tutte le informazioni di instradamento su ogni host
+sarebbe impossibile data l'enorme quantità di memoria necessaria e
+l'elevato traffico (bloccherebbe il resto) che si creerebbe.
+
+Per questo, conviene impostare la rete Internet con una
+\textbf{autonomia amministrativa}, secondo la quale idealmente ciascuno
+sarebbe in grado di amministrare la propria rete connettendola alle
+altre.
+
+Nella realtà è possibile organizzare i router in \textbf{sistemi
+autonomi} (AS), dove in ogni gruppo autonomo i router eseguono lo stesso
+algoritmo di instradamento (protocollo \textbf{intra-AS}) mentre i
+\textbf{router gateway} hanno il compito di inoltrare i pacchetti a
+destinazioni esterne.
+
+Ogni sistema autonomo sa come inoltrare i pacchetti lungo il percorso
+ottimo verso qualsiasi destinazione interna al gruppo, mentre per
+trasferire dati tra sistemi autonomi differenti (i quali potrebbero
+usare protocolli differenti) si utilizza l'instradamento
+\textbf{inter-AS}.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{as}
+	\end{center}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{routing-as}
+	\end{center}
+
+\hypertarget{header-n235}{%
+\section{Instradamento in Internet}\label{header-n235}}
+
+I protocolli d'instradamento \emph{intra-AS} sono noti come protocolli
+gateway interni (\textbf{IGP}), i più comuni sono:
+
+\begin{itemize}
+\item
+  \textbf{RIP}: Routing Information Protocol
+\item
+  \textbf{OSPF}: Open Shortest Path First
+\item
+  \textbf{IGRP}: Interior Gateway Routing Protocol (proprietario Cisco)
+\end{itemize}
+
+\hypertarget{header-n244}{%
+\subsection{RIP (Routing Information Protocol)}\label{header-n244}}
+
+RIP è un protocollo a vettore distanza incluso in UNIX BSD dagli anni
+'80. Effettua un conteggio degli hop come metrica di costo con un
+massimo di 15 hop.
+
+I router adiacenti si scambiano aggiornamenti ogni 30 secondi mediante
+l'annuncio RIP (\emph{RIP advertisement}), contenente un elenco di fino
+a 25 sottoreti di destinazione interne all'AS, insieme alla distanza tra
+il mittente ed esse.
+
+Se un router non riceve notizie dal vicino per più di 180 secondi il
+nodo viene considerato spento, con il ricalcolo della tabella e la
+propagazione dell'informazione agli altri vicini. L'utilizzo
+dell'\emph{inversione avvelenata} evita i loop (16 hop).
+
+RIP viene implementato a livello applicazione con messaggi su socket
+standard e protocollo di trasporto standard.
+
+\hypertarget{header-n249}{%
+\subsection{OSPF (Open Shortest Path First)}\label{header-n249}}
+
+Essendo open, le specifiche del protocollo sono pubblicamente
+disponibili. Protocollo a link-state, utilizza il flooding di
+informazioni di stato del link e l'algoritmo di Dijkstra per determinare
+il percorso a costo minimo. Ogni volta che si verifica un cambiamento su
+un link il router inoltra l'informazione a tutti i router (all'intero
+AS) utilizzando il flooding, i messaggi sono trasportati da IP.
+
+OSPF presenta alcuni vantaggi rispetto a RIP:
+
+\begin{itemize}
+\item
+  \textbf{sicurezza}: scambi tra router autenticati
+\item
+  \textbf{multipath}: consente l'utilizzo di più percorsi con uguale
+  costo
+\item
+  per ogni link possono esserci più costi in base al servizio (es.
+  satellite costo elevato)
+\item
+  \textbf{supporto unicast e multicast}: viene utilizzato OSPF Multicast
+\item
+  \textbf{supporto alle gerarchie} in un dominio d'instradamento
+\end{itemize}
+
+\hypertarget{header-n263}{%
+\subsubsection{OSPF strutturato gerarchicamente}\label{header-n263}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{ospf-gerarchia}
+	\end{center}
+
+La struttura gerarchica in OSPF consente di impostare due livelli: area
+locale e dorsale, nelle quali i messaggi LS sono solo all'interno
+dell'area e ogni nodo conosce la direzione verso le reti nelle altre
+aree.
+
+I \textbf{router di confine d'area} appartengono sia alla dorsale che a
+un'area generica, i \textbf{router di dorsale} effettuano
+l'instradamento interno alla dorsale, i \textbf{router di confine}
+scambiano informazioni con router di altri AS.
+
+\hypertarget{header-n267}{%
+\subsection{BGP: instradamento inter-AS}\label{header-n267}}
+
+Il protocollo BGP (Border Gateway Protocol) è l'attuale standard
+\emph{de facto} per l'instradamento inter-AS, che mette a disposizione
+di ciascun AS le seguenti funzionalità:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  ottenere informazioni sulla raggiungibilità delle sottoreti da parte
+  di AS confinanti
+\item
+  propagare le informazioni di raggiungibilità a tutti i router interni
+  di un AS
+\item
+  determinare percorsi "buoni" verso le sottoreti sulla base delle
+  informazioni di raggiungibilità e delle politiche dell'AS
+\end{enumerate}
+
+In breve, BGP consente alle sottoreti di comunicare la propria esistenza
+alla rete Internet.
+
+\hypertarget{header-n280}{%
+\subsubsection{Fondamenti di BGP}\label{header-n280}}
+
+Due router che si scambiano messaggi BGP sono chiamati \textbf{peer BGP}
+mentre la connessione TCP è detta \textbf{sessione BGP}. Quando un AS
+annuncia un prefisso ad un altro AS, sta in realtà "promettendo" di
+inoltrare i datagrammi sul prefisso stabilito, un AS può aggregare più
+prefissi in un annuncio.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{bgp}
+	\end{center}
+
+Le sessioni BGP interne sono utilizzate per distribuire i prefissi a
+tutti i router del AS, mentre le sessioni esterne scambiano informazioni
+sulla raggiungibilità dei prefissi.
+
+\hypertarget{header-n328}{%
+\paragraph{Attributi del percorso}\label{header-n328}}
+
+Quando viene annunciato un prefisso, nel messaggio vengono aggiunti
+anche degli attributi BGP come:
+
+\begin{itemize}
+\item
+  \textbf{AS-PATH} che elenca gli AS che ha attraversato l'annuncio
+\item
+  \textbf{NEXT-HOP} che indica l'eventuale collegamento fisico su cui
+  viene inoltrato il pacchetto
+\end{itemize}
+
+Ogni router gateway ha delle \textbf{politiche di importazione} per
+decidere se accettare o filtrare la rotta.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{next-hop}
+	\end{center}
+
+\hypertarget{header-n330}{%
+\paragraph{Selezione dei percorsi}\label{header-n330}}
+
+Nel caso in cui siano presenti più rotte si seguono alcune regole di
+eliminazione:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  si preferiscono le rotte con dei valori di preferenza locale più alti
+\item
+  si seleziona la rotta con AS-PATH più breve
+\item
+  si seleziona la rotta con il router NEXT-HOP più vicino, instradamento
+  a \emph{patata bollente}
+\item
+  se avanzano più rotte, ci si basa sugli identificatori BGP
+\end{enumerate}
+
+\hypertarget{header-n327}{%
+\paragraph{Messaggi BGP}\label{header-n327}}
+
+\begin{itemize}
+\item
+  \textbf{OPEN}: apre la connessione TCP e autentica il mittente
+\item
+  \textbf{UPDATE}: annuncia il nuovo percorso
+\item
+  \textbf{KEEPALIVE}: mantiene la connessione attiva in mancanza di
+  UPDATE
+\item
+  \textbf{NOTIFICATION}: riporta gli errori del precedente messaggio;
+  usato anche per chiudere il collegamento.
+\end{itemize}
+
+\hypertarget{header-n349}{%
+\subsubsection{Differenze tra i protocolli inter-AS e
+intra-AS}\label{header-n349}}
+
+\begin{itemize}
+\item
+  \textbf{Politiche}
+
+  \begin{itemize}
+  \item
+    Inter-AS: l'amministrazione vuole controllare l'instradamento del
+    traffico e chi instrada attraverso le sue reti
+  \item
+    Intra-AS: un solo controllo amministrativo, rotte interne scelta
+    senza questioni di politica importanti
+  \end{itemize}
+\item
+  \textbf{Scala}: l'instradamento gerarchico fa risparmiare sulle
+  tabelle d'instradamento riducendo il traffico di aggiornamento
+\item
+  \textbf{Prestazioni}: Intra-AS orientato alle prestazioni, Inter-AS le
+  politiche possono prevalere sulle prestazioni
+\end{itemize}
+	
 	\chapter{Il livello di collegamento}
 	
-	
+	\hypertarget{header-n0}{%
+\section{Livello di collegamento: introduzione e
+servizi}\label{header-n0}}
+
+A livello di collegamento definiamo come \textbf{nodi} host e router,
+che vengono collegati tra loro da \textbf{collegamenti (link)} di
+tipologia cablata, wireless o LAN. Le unità di dati scambiate a livello
+link sono chiamate \textbf{frame}.
+
+In breve, i protocolli a livello di collegamento si occupano del
+trasporto di datagram lungo un singolo canale di comunicazione. Questi
+protocolli possono essere differenti sui vari collegamenti che seguirà
+il datagram e i servizi erogati possono essere differenti: non tutti i
+protocolli, ad esempio, forniscono consegna affidabile.
+\hypertarget{header-n4}{%
+\subsection{Servizi offerti a livello di link}\label{header-n4}}
+
+\begin{itemize}
+\item
+  \textbf{Framing}
+
+  \begin{itemize}
+  \item
+    I protocolli incapsulano i datagram del livello di rete in frame a
+    livello di link
+  \item
+    Il protocollo MAC controlla l'accesso al mezzo trasmissivo (il
+    collegamento)
+  \item
+    Viene utilizzato l'indirizzo MAC (diverso dall'IP) per identificare
+    i nodi di origine e destinazione
+  \end{itemize}
+\item
+  \textbf{Consegna affidabile}
+
+  \begin{itemize}
+  \item
+    Non necessaria sui collegamenti a basso numero di errori sui bit
+    (fibra ottica, cavo coassiale, doppino intrecciato)
+  \item
+    Utilizzata nei collegamenti soggetti a elevato tasso di errori
+    (wireless)
+  \end{itemize}
+\item
+  \textbf{Controllo di flusso:} non saturare il nodo ricevente
+\item
+  \textbf{Rilevazione degli errori:} causati dall'attenuazione del
+  segnale e dal rumore elettromagnetico, il ricevente individua gli
+  errori grazie a un bit di controllo inserito nel frame
+\item
+  \textbf{Correzione degli errori:} il ricevente determina l'errore e lo
+  corregge
+\item
+  \textbf{Half-duplex e full-duplex}
+\end{itemize}
+
+\hypertarget{header-n30}{%
+\subsection{Dov'è implementato il livello link}\label{header-n30}}
+
+Viene implementato in tutti gli host grazie ad un adattatore (o
+\textbf{NIC}, network interface card) che implementa il livello di
+collegamento e fisico ed è una combinazione di hardware, software e
+firmware.
+
+L'adattatore ha il ruolo in trasmissione di incapsulare i datagram nei
+frame impostando bit di controllo errori, trasferimento affidabile,
+controllo di flusso, ecc e dall'altro lato di individuare errori ed
+estrarre i datagram passandoli al nodo.
+
+\hypertarget{header-n33}{%
+\section{Tecniche di rilevazione e correzione degli
+errori}\label{header-n33}}
+
+La rilevazione degli errori non è attendibile al 100\%, infatti è
+possibile che ci siano errori non rilevati e per ridurre che questo
+accada le tecniche più sofisticate prevedono un'elevata ridondanza.
+
+\hypertarget{header-n35}{%
+\subsection{Controllo di parità}\label{header-n35}}
+
+Nel caso di \textbf{unico bit di parità} è presente un solo bit che
+consente di riconoscere che si è verificato almeno un errore in un bit.
+
+Nel caso della \textbf{parità bidimensionale} è possibile individuare e
+correggere il bit alterato.
+
+\begin{center}
+	\includegraphics[width=0.7\linewidth]{parita-2d.png}
+\end{center}
+
+\hypertarget{header-n39}{%
+\section{Protocolli di accesso multiplo}\label{header-n39}}
+
+Esistono due tipi di collegamenti di rete:
+
+\begin{itemize}
+\item
+  collegamento \textbf{punto-punto} (PPP), utilizzato per connessioni
+  telefoniche o collegamenti punto-punto tra Ethernet e host
+\item
+  collegamento \textbf{broadcast} (cavo o canale condiviso) come
+  l'Ethernet tradizionale o wireless
+\end{itemize}
+
+Nel caso di una connessione a un canale broadcast condiviso è consentita
+la connessione anche a migliaia di nodi: si genera quindi una
+\textbf{collisione} quando i nodi ricevono più di un frame
+contemporaneamente.
+
+I protocolli ad accesso multiplo consentono quindi di definire le
+modalità con cui i nodi regolano le loro trasmissioni sul canale, la cui
+comunicazione utilizza il canale stesso (non è presente un canale fuori
+banda).
+
+Il protocollo di accesso multiplo ideale sarebbe un protocollo
+decentralizzato e semplice che suddivide il tasso trasmissivo tra il
+numero di nodi che devono inviare dati. Ovviamente tale protocollo non è
+possibile
+
+I protocolli di accesso multiplo esistenti vengono classificati come
+segue:
+
+\begin{itemize}
+\item
+  Protocolli a \textbf{suddivisione del canale}: il canale è suddiviso
+  in parti (slot di tempo, frequenza, codice) ed allocate a uno
+  specifico nodo per utilizzo esclusivo
+\item
+  Protocolli ad \textbf{accesso casuale}: nessuna divisione, si possono
+  verificare collisioni, i nodi ritrasmettono ripetutamente i pacchetti
+\item
+  Protocolli a \textbf{rotazione}: ogni nodo ha il suo turno di
+  trasmissione, ma quelli che hanno molto da trasmettere potrebbero
+  avere turni più lunghi
+\end{itemize}
+
+\hypertarget{header-n57}{%
+\subsection{Protocolli a suddivisione del canale}\label{header-n57}}
+
+\hypertarget{header-n58}{%
+\subsubsection{TDMA: accesso multiplo a divisione di
+tempo}\label{header-n58}}
+
+Il protocollo TDMA consiste in turni per accedere al canale,
+suddividendolo in intervalli di tempo. Gli slot non usati rimangono
+inattivi.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{tdma}
+	\end{center}
+
+\hypertarget{header-n61}{%
+\subsubsection{FDMA: accesso multiplo a divisione di
+frequenza}\label{header-n61}}
+
+Il protocollo FDMA suddivide il canale in bande di frequenza e ad ogni
+nodo viene assegnata una banda di frequenza prefissata.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{fdma}
+	\end{center}
+
+\hypertarget{header-n64}{%
+\subsection{Protocolli ad accesso casuale}\label{header-n64}}
+
+Nei protocolli ad accesso casuale ogni nodo che deve inviare dati
+trasmette alla massima velocità consentita dal canale, senza
+coordinazione tra i nodi. Se più nodi stanno trasmettendo si verifica
+una collisione. Il protocollo definisce quindi come rilevare le
+collisioni e come ritrasmettere in caso di avvenuta collisione.
+
+Alcuni protocolli ad accesso casuale sono slotted ALOHA, ALOHA, CSMA,
+CSMA/CD, CSMA/CA.
+
+\hypertarget{header-n67}{%
+\subsubsection{Slotted ALOHA}\label{header-n67}}
+
+Nel protocollo slotted ALOHA si assume che tutti i pacchetti abbiano la
+stessa dimensione e il tempo sia suddiviso in slot, equivalenti al tempo
+di trasmissione di un singolo pacchetto.
+
+Quando un nodo deve spedire, esso attenderà fino all'inizio dello slot
+successivo. Se nel mentre non si verifica una collisione il nodo potrà
+trasmettere il pacchetto nello slot successivo, altrimenti se avviene la
+collisione, essa verrà rilevata prima della fine dello slot e
+ritrasmetterà il pacchetto con probabilità \emph{p} durante gli slot
+successivi.
+
+Questo protocollo consente ai nodi di trasmettere continuamente alla
+massima velocità decidendo indipendentemente quando ritrasmettere
+(decentralizzazione). Dall'altro lato alcuni slot presenteranno
+collisioni andando sprecati ed altri rimarranno vuoti (inattivi)
+
+\hypertarget{header-n71}{%
+\subsubsection{Efficienza di Slotted ALOHA}\label{header-n71}}
+
+\textbf{Efficienza} definita come la frazione di slot vincenti in
+presenza di un elevato numero di nodi attivi. Nel caso migliore solo il
+37\% degli slot compie lavoro utile.
+
+\hypertarget{header-n73}{%
+\subsubsection{ALOHA Puro}\label{header-n73}}
+
+Aloha puro è più semplice e non sincronizzato: quando arriva il primo
+pacchetto lo trasmette immediatamente e integralmente nel canale
+broadcast. Ci sono però elevate probabilità di collisione (i pacchetti
+si sovrappongono tra loro).
+
+L'efficienza di ALOHA puro (18\%) è peggio dello slotted.
+
+\hypertarget{header-n76}{%
+\subsubsection{Accesso multiplo a rilevazione della portante
+(CSMA)}\label{header-n76}}
+
+CSMA si pone in ascolto prima di trasmettere: se il canale è libero
+trasmette l'intero paccheto, se sta già trasmettendo aspetta un altro
+intervallo di tempo.
+
+Possono ancora verificarsi collisioni: il ritardo di propagazione fa sì
+che due nodi non rilevino la reciproca trasmissione. Se avviene una
+collisione, non appena rilevata il nodo cessa immediatamente la
+trasmissione. La distanza e il ritardo di propagazione sono fondamentali
+per calcolare la probabilità di collisione.
+
+\hypertarget{header-n79}{%
+\paragraph{CSMA/CD (collision detection)}\label{header-n79}}
+
+Rilevamento della portante differito, come in CSMA: rileva la collisione
+in poco tempo e annulla la trasmissione non appena si accorge che c'è
+un'altra trasmissione in corso. La collisione è di facile rilevazione
+nelle LAN cablate e difficile nelle LAN wireless.
+
+\hypertarget{header-n81}{%
+\subsection{Protocolli MAC a rotazione}\label{header-n81}}
+
+Prendono il meglio dai protocolli precedenti, cercando di ereditare
+dalla suddivisione di canale la condivisione equa del canale evitando
+congestione, mentre dai protocolli ad accesso casuale ereditano
+l'efficacia con carichi non elevati.
+
+Si basano sul protocollo \textbf{polling}: un nodo principale sonda a
+turno gli altri. Vengono eliminate collisioni e slot vuoti, si introduce
+però il ritardo di polling e il problema che se il nodo master si guasta
+il canale resta inattivo.
+
+\hypertarget{header-n84}{%
+\subsubsection{Protocollo token-passing}\label{header-n84}}
+
+Un messaggio di controllo circola fra i nodi con un ordine prefissato e
+chi ne è in possesso può trasmettere. Questo protocollo è
+decentralizzato, altamente efficiente ma il guasto di un nodo può
+mettere fuori uso l'intero canale.
+
+\hypertarget{header-n86}{%
+\subsection{Riepilogo dei protocolli}\label{header-n86}}
+
+Cosa si può fare con un canale condiviso?
+
+\begin{itemize}
+\item
+  \textbf{Suddivisione del canale:} per tempo, frequenza o codice (TDM,
+  FDM)
+\item
+  \textbf{Suddivisione casuale} o dinamica:
+
+  \begin{itemize}
+  \item
+    ALOHA, S-ALOHA, CSMA, CSMA/CD (Ethernet)
+  \item
+    Rilevamento della portante: facile per tecnologie cablate, difficile
+    con wireless
+  \item
+    802.11 utilizza la variante CSMA/CA
+  \end{itemize}
+\item
+  \textbf{A rotazione}
+
+  \begin{itemize}
+  \item
+    Polling di un nodo principale o passaggio di un token
+  \item
+    Completa decentralizzazione ed elevata efficienza
+  \item
+    Usati in Bluetooth, FDDI, IBM Token Ring
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{header-n109}{%
+\section{Indirizzi a livello di collegamento}\label{header-n109}}
+
+\hypertarget{header-n110}{%
+\subsection{Indirizzi MAC e ARP}\label{header-n110}}
+
+L'indirizzo MAC (o fisico o Ethernet), è analogo al numero di codice
+fiscale di una persona: ha una struttura piatta e non dipende dalla rete
+in cui si è collegati. Dipende dal produttore della scheda di rete e
+solitamente ha 48 bit. Viene scritto in esadecimale usando 6 coppie di
+cifre esadecimali. L'indirizzo broadcast di livello 2 ha tutti 1
+(FF-FF-FF-FF-FF-FF).
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{arp}
+	\end{center}
+
+Sono gestiti dalla \textbf{IEEE} che vende alle società costruttrici di
+adattatori i blocchi di spazio di indirizzi. La società dovrà garantire
+l'unicità degli indirizzi.
+
+Il vantaggio dell'orizzontalità del MAC è la portabilità delle schede da
+una rete all'altra (cambierà solo l'IP)
+
+\hypertarget{header-n115}{%
+\subsubsection{Protocollo per la risoluzione degli indirizzi
+(ARP)}\label{header-n115}}
+
+Ogni nodo IP nella LAN ha una tabella ARP, la quale contiene la
+corrispondenza tra indirizzi IP e MAC.
+
+\begin{verbatim}
+<Indirizzo IP, Indirizzo MAC, TTL>
+\end{verbatim}
+
+Il TTL indica quando bisognerà eliminare una voce nella tabella
+(tipicamente 20 minuti).
+
+\hypertarget{header-n119}{%
+\paragraph{ARP nella stessa sottorete}\label{header-n119}}
+
+ARP è plug-and-play: la tabella si costruisce automaticamente, non è
+necessario l'intervento dell'amministratore di rete. Un nodo trasmette
+in broadcast il messaggio di richiesta ARP, richiedendo l'indirizzo di
+un secondo nodo. Quando quest'ultimo riceve il pacchetto ARP risponderà
+comunicando il proprio indirizzo MAC.
+
+\hypertarget{header-n121}{%
+\paragraph{Invio verso un nodo esterno alla
+sottorete}\label{header-n121}}
+
+Se si vuole inviare un pacchetto da A a B attraverso un router R, il
+router stesso avrà due tabelle ARP, una per ciascuna rete IP (LAN) a cui
+è collegato.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Il nodo A controlla qual'è la destinazione del suo datagram, se è
+  nella sua stessa sottorete
+\item
+  A deve inoltrare il datagram al router R, deve quindi trovare il MAC
+  dell'interfaccia del router utilizzando ARP
+\item
+  A quindi incapsulerà il datagram in un frame di livello 2 indirizzato
+  a R, il quale toglierà l'header di livello 2, leggerà l'IP di
+  destinazione e cercherà il percorso nella sua tabella di routing.
+\item
+  Il router R dovrà poi cercare l'indirizzo MAC del destinatario sulla
+  seconda sottorete sempre con ARP
+\item
+  Infine il router R incapsulerà a sua volta il datagram in un frame di
+  livello 2 inviandolo al destinatario.
+\end{enumerate}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{arp2}
+	\end{center}
+
+\hypertarget{header-n135}{%
+\section{Ethernet}\label{header-n135}}
+
+Ethernet detiene una posizione dominante nel mercato delle LAN cablate:
+
+\begin{itemize}
+\item
+  è stata la prima LAN ad alta velocità con vasta diffusione
+\item
+  Più semplice e meno costosa di token ring, FDDI e ATM
+\item
+  Al passo coi tempi con il tasso trasmissivo: da 10 Mbps finoa 10 Gbps
+\end{itemize}
+
+Il progetto originale di Ethernet fù ideato da Bob Metcalfe.
+
+\hypertarget{header-n145}{%
+\subsection{Topologia}\label{header-n145}}
+
+La topologia originale era quella a Bus con cavo coassiale, diffusa fino
+alla metà degli anni 90.
+
+Le reti odierne seguono la topologia a stella, ogni nodo è collegato a
+un hub o commutatore (\emph{switch}) permettendo di eseguire in ogni
+nodo un protocollo Ethernet separato non entrando in collisione con
+altri.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{topologie}
+	\end{center}
+
+\hypertarget{header-n149}{%
+\subsection{Struttura dei pacchetti Ethernet}\label{header-n149}}
+
+Preambolo, MAC di destinazione, MAC di origine, tipo, payload dati e CRC
+(correzione degli errori).
+
+\begin{itemize}
+\item
+  Il \textbf{preambolo} in specifico è costituito da 8 byte, i primi
+  sette sono 10101010 e l'ultimo 10101011, e viene utilizzato per
+  "attivare" il ricevitore quando viene inviato un pacchetto e per
+  sincronizzare l'orologio con quello del trasmittente.
+\item
+  Gli \textbf{indirizzi} sono costituiti da 6 byte. Se è presente
+  l'indirizzo di destinazione o il broadcast il payload viene trasferito
+  direttamente al livello di rete altrimenti il pacchetto viene
+  ignorato.
+\item
+  Il campo \textbf{tipo} consente a Ethernet di supportare i vari
+  protocolli di rete (multiplexing).
+\item
+  Il controllo \textbf{CRC} consente all'adattatore ricevente di
+  rilevare la presenza di un errore nei bit del pacchetto.
+\end{itemize}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{ethernet}
+	\end{center}
+
+\hypertarget{header-n161}{%
+\subsection{Servizio senza connessione non
+affidabile}\label{header-n161}}
+
+\begin{itemize}
+\item
+  \textbf{Senza connessione}: non è prevista nessuna forma di handshake
+  preventiva prima di inviare un pacchetto.
+\item
+  \textbf{Non affidabile}: non esiste riscontro, il flusso dei datagram
+  non è garantito poiché il compito viene delegato ai protocolli di
+  livello superiore.
+\end{itemize}
+
+\hypertarget{header-n167}{%
+\subsection{Fasi operative del protocollo CSMA/CD}\label{header-n167}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  L'adattatore che riceve un datagram da livello 3 prepara il frame e
+  ascolta il canale.
+\item
+  Se è inattivo inizia la trasmissione, altrimenti resta in attesa.
+\item
+  Durante la trasmissione, verifica se ci sono altri segnali provenienti
+  da altri host.
+\item
+  Se rileva altri segnali interrompe la trasmissione e invia un segnale
+  di disturbo (\emph{jam}) per avvisare della collisione.
+\item
+  L'adattatore si mette in attesa e viene definito uno slot di attesa
+  pari a 512 bit; se viene messo in attesa successivamente l'intervallo
+  raddoppia ogni volta. Dopo 10 volte raggiungerà il valore massimo,
+  quando scade l'attesa se il canale è inattivo si potrà trasmettere
+  nuovamente.
+\end{enumerate}
+
+Il segnale \emph{jam} viene trasmesso a un voltaggio più elevato ed è
+lungo 48 bit. L'attesa è esponenziale con l'obiettivo di stimare quanti
+sono i nodi in attesa coinvolti.
+
+\hypertarget{header-n180}{%
+\subsection{Efficienza di Ethernet}\label{header-n180}}
+
+\begin{itemize}
+\item
+  Tempo di propagazione: tempo massimo che occorre al segnale per
+  propagarsi tra due host
+\item
+  Tempo di trasmissione: tempo necessario per trasmettere un pacchetto
+  della maggior dimensione possibile
+\end{itemize}
+
+\[efficienza = \frac{1}{1+5t_{prop}/t_{trasm}}\]
+
+\begin{itemize}
+\item
+  Se il tempo di propagazione tende a 0, l'efficienza tenderà a 1
+  (100\%, efficienza massima)
+\item
+  Per aumentare l'efficienza, in alternativa, si può aumentare il tempo
+  di trasmissione.
+\item
+  Molto meglio di ALOHA: decentralizzato, semplice e poco costoso.
+\end{itemize}
+
+\hypertarget{header-n194}{%
+\subsection{Ethernet 802.3}\label{header-n194}}
+
+Sono presenti diversi standard Ethernet: il MAC e il frame sono
+solitamente standard. Abbiamo però differenti velocità e differenti
+mezzi trasmissivi (fibra o cavo).
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{fisico}
+	\end{center}
+
+\hypertarget{header-n197}{%
+\subsection{Codifica Manchester}\label{header-n197}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{manchester}
+	\end{center}
+
+La codifica Manchester veniva utilizzata in 10BaseT: durante la
+ricezione di ciascun bit si verifica una transizione, permettendo di
+sincronizzare gli orologi di trasmittenti e riceventi. L'operazione
+veniva effettuata a livello fisico.
+
+\hypertarget{header-n200}{%
+\section{Switch a livello di collegamento}\label{header-n200}}
+
+\hypertarget{header-n201}{%
+\subsection{Hub}\label{header-n201}}
+
+L'hub è un dispositivo "stupido" che opera sui singoli bit:
+
+\begin{itemize}
+\item
+  riproduce un bit incrementandone l'energia trasmettendolo su tutte le
+  interfacce, anche se su alcune c'è un segnale (avverrà una collisione)
+\item
+  non implementa rilevazione di portante né CSMA/CD
+\end{itemize}
+
+\hypertarget{header-n208}{%
+\subsection{Switch}\label{header-n208}}
+
+Lo switch è un dispositivo a livello di link, è più intelligente di un
+hub e svolge un ruolo attivo:
+
+\begin{itemize}
+\item
+  filtra e inoltra i pacchetti
+\item
+  ha una tabella e sa a quale porta inoltrare un pacchetto
+\item
+  è trasparente agli host
+\item
+  è un componente plug-and-play con autoapprendimento, non richiede
+  l'intervento salvo configurazioni particolari
+\end{itemize}
+
+Lo switch consente più trasmissioni simultanee: i pacchetti vengono
+infatti bufferizzati e il protocollo Ethernet viene implementato su
+ciascun collegamento in entrata, evitando collisioni ma consentendo il
+full-duplex. Grazie allo switching avvengono quindi più trasmissioni
+simultaneamente.
+
+\hypertarget{header-n220}{%
+\subsubsection{Tabella di commutazione}\label{header-n220}}
+
+Componente software utilizzato dallo switch per sapere dove inoltrare i
+pacchetti ricevuti. Contiene il MAC del nodo di destinazione e
+l'interfaccia associata, assomiglia alle tabelle di instradamento con la
+differenza che può essere generata automaticamente dallo switch.
+
+\hypertarget{header-n222}{%
+\paragraph{Autoapprendimento}\label{header-n222}}
+
+Quando riceve un pacchetto, lo switch impara l'indirizzo del mittente:
+registrerà quindi nella tabella di switching la coppia indirizzo/porta.
+
+\hypertarget{header-n224}{%
+\subsubsection{Collegare gli switch}\label{header-n224}}
+
+Gli switch possono essere interconnessi tra loro: gli host avranno la
+sensazione di essere sulla stessa rete di livello 2 ma saranno su
+differenti domini di collisione.
+
+\hypertarget{header-n226}{%
+\subsubsection{Esempio di rete di un'istituzione}\label{header-n226}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{istituzione}
+	\end{center}
+
+\hypertarget{header-n228}{%
+\subsubsection{Switch e router a confronto}\label{header-n228}}
+
+\begin{itemize}
+\item
+  Entrambi i dispositivi sono store-and-forward
+
+  \begin{itemize}
+  \item
+    Il router lavora a livello di rete (dominio di broadcast)
+  \item
+    Lo switch lavora a livello di collegamento (dominio di collisione)
+  \end{itemize}
+\item
+  I router mantengono tabelle d'inoltro e implementano algoritmi
+  d'instradamento
+\item
+  Gli switch mantengono tabelle di commutazione e implementano il
+  filtraggio e algoritmi di autoapprendimento
+\end{itemize}
+
+\hypertarget{header-n241}{%
+\section{PPP: protocollo punto-punto}\label{header-n241}}
+
+Protocollo estremamente semplice, prevede un solo collegamento tra
+mittente e destinatario. Non è necessario un protocollo di accesso al
+mezzo, non occorre un indirizzo MAC esplicito, veniva usato soprattutto
+nei collegamenti ISDN.
+
+Sono presenti protocolli più complessi come \textbf{HDLC} (High-level
+Data Link Control).
+
+\hypertarget{header-n244}{%
+\subsection{Requisiti di IETF (RFC 1547)}\label{header-n244}}
+
+\begin{itemize}
+\item
+  \textbf{Framing dei pacchetti:} incapsulare il pacchetto di rete
+  dentro una struttura riconoscibile a livello di link e a livello
+  fisico
+\item
+  \textbf{Trasparenza: }non porre nessuna restrizione alla
+  configurazione dei dati
+\item
+  \textbf{Rilevazione di errori}
+\item
+  \textbf{Disponibilità della connessione: }rilevare eventuali guasti
+\item
+  \textbf{Negoziazione degli indirizzi di rete: }necessario un
+  protocollo per interagire con la rete per ottenere ad esempio un
+  indirizzo IP
+\end{itemize}
+
+Le altre funzioni come correzione degli errori, controllo di flusso,
+riordinamento dei pacchetti \textbf{sono delegati ai livelli superiori.}
+
+\hypertarget{header-n257}{%
+\subsection{Formato dei pacchetti dati PPP}\label{header-n257}}
+
+\begin{itemize}
+\item
+  \textbf{Flag: }ogni pacchetto inizia e termina con un byte di valore
+  \textbf{01111110}
+\item
+  \textbf{Indirizzo: }unico valore \textbf{11111111} broadcast (solo due
+  entità che comunicano)
+\item
+  \textbf{Controllo: }unico valore, tutti i frame sono dello stesso tipo
+\item
+  \textbf{Protocollo: }qual è il protocollo di livello superiore cui
+  appartengono i dati incapsulati
+\end{itemize}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{ppp}
+	\end{center}
+
+\hypertarget{header-n268}{%
+\subsubsection{Riempimento dei byte}\label{header-n268}}
+
+Per il requisito di trasparenza non dev'essere possibile inserire nel
+campo informazioni la stringa flag \textbf{01111110}, poiché non sarebbe
+riconoscibile la fine del frame PPP.
+
+Per ovviare a questo problema si ricorre alla tecnica del byte stuffing:
+si aggiunge un byte di controllo pari al flag prima di ogni byte di
+dati. In questo modo il destinatario riconoscerà la presenza di dati se
+sono presenti due byte \textbf{01111110} consecutivi.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{byte-stuffing}
+	\end{center}
+
+\hypertarget{header-n272}{%
+\section{Canali virtuali: una rete come un livello di
+link}\label{header-n272}}
+
+\hypertarget{header-n273}{%
+\subsection{Il concetto di virtualizzazione}\label{header-n273}}
+
+Per \textbf{virtualizzazione} si intende il processo di sostituzione di
+una versione fisica con una rappresentazione software. Consente di
+spezzare la dipendenza tra hardware e funzionalità software e una veloce
+innovazione, è più facile testare e progettare i servizi senza il
+bisogno dell'ambiente fisico. La virtualizzazione consente di isolare e
+partizionare le risorse disponibili, oltre alla possibilità di maggior
+controllo.
+
+\hypertarget{header-n275}{%
+\subsubsection{Tipi di virtualizzazione}\label{header-n275}}
+
+\begin{itemize}
+\item
+  \textbf{Virtualizzazione hardware:} astrarre la funzionalità logica
+  dall'infrastruttura fisica (ad esempio programmazione con compilatore)
+\item
+  \textbf{Virtualizzazione di rete: }reti virtuali basate su dispositivi
+  virtuali, successivamente mappate su risorse fisiche
+\item
+  \textbf{Cloud: }gestire al meglio grosse quantità di CPU, storage e
+  rete fornendo un pool di risorse aggregate, con lo scopo di fornire le
+  risorse in maniera scalabile (illusione di risorse infinite)
+\end{itemize}
+
+\hypertarget{header-n283}{%
+\subsubsection{Storia della virtualizzazione}\label{header-n283}}
+
+La virtualizzazione inizia nell'era nei mainframe negli anni '60 dove le
+risorse di computazione venivano condivise tra molti utenti.
+Successivamente la virtualizzazione venne utilizzata nei datacenter,
+consentendo la suddivisione delle risorse disponibili, arrivando al
+giorno d'oggi con la virtualizzazione delle reti.
+
+\hypertarget{header-n285}{%
+\subsection{Internet: virtualizzazione delle reti}\label{header-n285}}
+
+Grazie all'indirizzamento IP e ai gateway divenne possibile collegare
+tra loro reti diverse per configurazione tra loro che prima non potevano
+comunicare. IP consente quindi di virtualizzare le reti.
+
+\hypertarget{header-n287}{%
+\subsubsection{Architettura di Cerf e Kahn}\label{header-n287}}
+
+Propone un primo tipo di virtualizzazione, dove il livello 3 (IP) rende
+tutto omogeneo, infatti il livello è necessariamente standard. La
+virtualizzazione ha consentito di spezzare l'indirizzamento a livello
+globale (livello 3) da quello locale (livello 2), virtualizzando le
+tecnologie di livello 2 (cavo, satellite, 56K).
+
+\hypertarget{header-n289}{%
+\subsubsection{Ethernet e domini}\label{header-n289}}
+
+\begin{itemize}
+\item
+  \textbf{Dominio di "collisione": }determinato dall'insieme degli host
+  che possono risentire di una collisione generata da due postazione
+  arbitraria
+\item
+  \textbf{Dominio di "broadcast": }insieme degli host che ricevono i
+  pacchetti in broadcast
+\end{itemize}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{domini}
+	\end{center}
+
+\hypertarget{header-n296}{%
+\subsection{LAN virtuali}\label{header-n296}}
+
+Consente di definire più reti locali virtuali distinte utilizzando una
+stessa infrastruttura fisica. Ogni VLAN si comporta come una rete locale
+separata dalle altre:
+
+\begin{itemize}
+\item
+  i pacchetti di broadcast sono confinati all'interno della VLAN
+\item
+  la comunicazione a livello 2 è confinata all'interno della VLAN
+\item
+  l'interconnessione tra più VLAN viene effettuata a livello 3 (è
+  necessario un router)
+\end{itemize}
+
+Le VLAN sono definite nello standard 802.1q e nel 802.1d che riguarda la
+comunicazione tra diversi standard 802 attraverso bridge.
+
+\hypertarget{header-n306}{%
+\subsubsection{Scopo delle VLAN}\label{header-n306}}
+
+L'utilizzo delle VLAN consente:
+
+\begin{itemize}
+\item
+  \textbf{risparmio: }definire più topologie virtuali utilizzando la
+  stessa infrastruttura fisica. Non sono necessarie modifiche
+  all'hardware
+\item
+  \textbf{aumento di prestazioni: }costruire la rete in base alle
+  esigenze del momento, limitando il traffico broadcast
+\item
+  \textbf{aumento della sicurezza: }suddividere il traffico e isolarlo
+  nelle varie VLAN
+\item
+  \textbf{flessibilità: }più facile spostare un utente dal punto di
+  vista logico da una VLAN a un'altra
+\end{itemize}
+
+\hypertarget{header-n317}{%
+\subsubsection{Requisiti sui bridge}\label{header-n317}}
+
+Per implementare le VLAN è necessario che gli apparati supportino lo
+standard 802.1q, con il quale è possibile definire due tipologie di
+VLAN: la port based (privata) e quella tagged (802.1q).
+
+Bisogna anche istruire bridge e switch perché riconoscano le VLAN, non è
+possibile farlo in autoapprendimento ma vanno preprogrammati.
+
+\hypertarget{header-n320}{%
+\subsubsection{Funzioni del bridge in 802.1q}\label{header-n320}}
+
+Per supportare le VLAN è necessario che i bridge svolgano le seguenti
+tre funzioni:
+
+\begin{itemize}
+\item
+  \textbf{ingress: }l'apparato deve capire a quale VLAN appartiene il
+  frame in ingresso
+\item
+  \textbf{forwarding: }effettuare l'inoltro in base alla VLAN di
+  appartenenza
+\item
+  \textbf{egress: }deve poter trasmettere il frame in uscita in modo che
+  la VLAN sia interpretabile dagli altri bridge
+\end{itemize}
+
+\hypertarget{header-n329}{%
+\subsubsection{Port based VLAN (untagged)}\label{header-n329}}
+
+Tecnica abbastanza semplice, assegna in maniera statica ciascuna porta
+del bridge a una VLAN definita con la configurazione del bridge.
+Permette di costruire su un singolo apparato 2 o più bridge logici.
+
+Le funzioni del bridge sono semplici:
+
+\begin{itemize}
+\item
+  ingress: un frame in ingresso appartiene alla VLAN a cui è assegnata
+  la porta
+\item
+  forwarding: frame inoltrato solamente verso le porte appartenenti alla
+  stessa VLAN (forwarding database distinto per ogni VLAN)
+\item
+  egress: determinata la porta il frame viene trasmesso così com'è
+\end{itemize}
+
+Le VLAN untagged non richiedono di modificare i pacchetti Ethernet
+poiché viene definito tutto sul bridge (che dev'essere compatibile con
+lo standard 802.1q).
+
+\hypertarget{header-n340}{%
+\subsubsection{VLAN 802.1q (tagged)}\label{header-n340}}
+
+Con questo standard è possibile far condividere lo stesso link fisico da
+tra VLAN differenti, stampando nel pacchetto di livello 2 la VLAN di
+appartenenza, aggiungendo nel frame Ethernet 4 byte che trasportano le
+informazioni sulla VLAN. Questo identificativo (VLAN tag) deve essere
+uguale per tutti i bridge che saranno tutti programmati per riconoscere
+tale VLAN.
+
+\hypertarget{header-n342}{%
+\paragraph{Frame Ethernet 802.1q}\label{header-n342}}
+
+Vengono aggiunti 4 byte dopo gli indirizzi di sorgente e destinazione i
+quali conterranno il \textbf{TPI} (Tag Protocol Identifier), che
+specifica che il frame è aderente a 802.1q e il \textbf{TCI} (Tag
+Control Information) che trasporta informazioni relative alla VLAN
+(priorità, interconnessione e VLAN tag).
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{frame-vlan}
+	\end{center}
+
+\hypertarget{header-n345}{%
+\paragraph{Considerazioni sul frame}\label{header-n345}}
+
+La modifica proposta da 802.1q richiede anche la modifica della
+dimensione massima di 1518 bytes con l'aggiunta di due byte. Inoltre, il
+campo TPI ha un valore non utilizzato come "protocol type" nei frame
+Ethernet ordinari in modo che sia riconoscibile che il frame è di tipo
+802.1q ma una scheda non compatibile non scarti il frame.
+
+\hypertarget{header-n347}{%
+\subsubsection{VLAN con switch/router}\label{header-n347}}
+
+Molti produttori consentono di implementare all'interno degli switch
+funzionalità di routing (livello 3), permettendo di interconnettere tra
+loro diverse VLAN mantenendo la separazione dei domini di broadcast.
+
+Utilizzando porte configurate in modalità TRUNK è possibile trasportare
+su un unico cavo i dati di più VLAN, lasciando agli switch il compito di
+inoltrare i pacchetti correttamente.
+
+\hypertarget{header-n350}{%
+\subsubsection{Porte tagged e untagged}\label{header-n350}}
+
+Negli switch 802.1q tutte le porte devono essere associate a una o più
+VLAN: se la porta è associata a una VLAN untagged i frame ricevuti non
+trasporteranno tag ne lo trasporteranno i frame in uscita, il link su
+tali porte si chiama \emph{access link}.
+
+Se la porta è in modalità tagged, il link si chiamerà \emph{trunk link}
+e la VLAN di appartenenza del frame sarà definita dal valore nel tag.
+
+\hypertarget{header-n353}{%
+\subsubsection{Protocol based VLAN}\label{header-n353}}
+
+Esiste la possibilità di assegnare un frame a una VLAN in maniera
+dinamica, sulla base di diversi parametri opportunamente configurati
+negli apparati (richiesti particolarmente evoluti).
+
+Viene effettuato il packet filtering in base a delle regole come IP del
+mittente, protocol type, indirizzo Ethernet. Può essere definita una
+associazione statica, che avrà precedenza sulle altre regole.
+
+Alcuni protocolli proprietari consentono di configurare le regole
+dinamiche in maniera centrale, importando le configurazioni tramite la
+rete, ad esempio non consentire l'accesso alle VLAN se il MAC address
+dell'host non è stato registrato dall'amministratore di rete.
+
+\hypertarget{header-n357}{%
+\subsubsection{Default VLAN}\label{header-n357}}
+
+Gli switch 802.1q sono preconfigurati con una default VLAN assegnata col
+tag 1 e tutte le porte assegnate ad essa in modalità untagged,
+permettendo al primo accesso di tale switch un funzionamento
+tradizionale. Per poter modificare il VLAN ID associato a ciascuna porta
+bisognerà eliminare tale porta dalla VLAN per poi poterla riconfigurare.
+
+\hypertarget{header-n359}{%
+\subsubsection{VLAN di management}\label{header-n359}}
+
+In ogni rete IP sono presenti due piani di funzionalità: un piano dati
+(o data plane) dove circola il traffico degli utenti e un piano di
+controllo (control plane) relativo al traffico di controllo della rete
+(BGP).
+
+Usando le VLAN è interessante poter creare una VLAN relativa alla
+gestione della rete, utilizzando la stessa infrastruttura.
+
+\hypertarget{header-n362}{%
+\subsection{ATM e MPLS}\label{header-n362}}
+
+ATM e MPLS sono delle soluzioni che consentono di generare circuiti
+virtuali utilizzando l'approccio a commutazione di pacchetto, consentono
+l'allocazione delle risorse per i flussi e la gestione della qualità del
+servizio. Queste tecnologie possono essere integrate nelle reti IP,
+attualmente sono utilizzate per interconnettere alcune zone della rete e
+non sono visibili all'utente.
+
+\hypertarget{header-n364}{%
+\subsubsection{Trasferimento asincrono (ATM)}\label{header-n364}}
+
+ATM è nato verso metà anni 80 con l'obbiettivo di estendere la
+tecnologia delle reti telefoniche in modo tale da essere utilizzata per
+reti dati, progettando reti in grado di trasportare file audio e video
+in tempo reale e supportare file di testo e immagini. Può essere
+considerata la tecnologia telefonica di ultima generazione e viene
+tutt'ora usata nelle reti ADSL, consente la realizzazione di circuiti
+virtuali e l'implementazione del QoS.
+
+\hypertarget{header-n366}{%
+\paragraph{Architettura ATM}\label{header-n366}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{atm}
+	\end{center}
+
+Segue la struttura TCP/IP, i terminali hanno 3 livelli mentre gli switch
+2. I 3 livelli sono:
+
+\begin{itemize}
+\item
+  \textbf{AAL (ATM adaptation layer): }presente nei dispositivi alla
+  periferia della rete, svolge una funzione analoga al livello di
+  Trasporto quindi segmentazione e riassemblaggio dei pacchetti e
+  mappatura dei flussi nelle tipologie di QoS
+\item
+  \textbf{ATM:} fulcro dell'architettura, considerato "livello di rete",
+  definisce la struttura della cella ATM (pacchetto) e tutti i suoi
+  campi
+\item
+  \textbf{Livello fisico}
+\end{itemize}
+
+La rete ATM inizialmente era concepita come una rete stand-alone, che
+fosse in grado di trasportare dati "da una scrivania a un'altra",
+venendo considerata una tecnologia di rete. Dopo l'affermazione dello
+stack TCP/IP come standard di Internet, per far si che ATM si potesse
+integrare nella reti IP venne messo al suo di sotto, diventando un
+livello 2, o livello di link commutato (utilizzato solo in alcune reti
+al di sotto di IP).
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{atm-ip}
+	\end{center}
+
+\hypertarget{header-n378}{%
+\subparagraph{AAL: ATM Adaptation Layer}\label{header-n378}}
+
+Presente solo negli host terminali, adatta i livelli superiori al
+livello ATM sottostante frammentandoli adeguatamente (come nella
+segmentazione TCP in pacchetti IP).
+
+Ci sono diverse tipologie (o profili) AAL che suggeriscono il QoS
+richiesto:
+
+\begin{itemize}
+\item
+  \textbf{AAL1:} servizio a tasso costante, CBR, come nei servizi
+  tradizionali per il traffico telefonico
+\item
+  \textbf{AAL2:} servizio a tasso variabile, VBR, adeguato per la
+  trasmissione di video MPEG
+\item
+  \textbf{AAL5:} servizio dati (datagram IP)
+\end{itemize}
+
+\hypertarget{header-n388}{%
+\subparagraph{Livello ATM}\label{header-n388}}
+
+Offre il servizio di trasporto di celle attraverso la rete ATM, analogo
+al livello di rete IP con servizi però molto differenti.
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{servizi-atm}
+	\end{center}
+
+Il livello ATM implementa una rete a pacchetto a circuiti virtuali,
+chiamati \textbf{canali virtuali (VC)}, percorsi con un collegamento
+diretto fra sorgente e destinazione. Ciascun pacchetto viene marchiato
+con l'indicatore \textbf{VCI} cosicché ogni switch saprà come
+interpretarlo. Al canale virtuale possono essere riservate
+\textbf{risorse dedicate} come banda e buffer per garantire il QoS.
+
+I canali virtuali possono essere \textbf{permanenti}, per connessioni di
+lunga durata, utilizzati tra zone della rete lontane tra loro, oppure
+\textbf{dinamici} (creati su richiesta).
+
+L'utilizzo di canali virtuali ha il vantaggio di poter controllare
+prestazioni e QoS, controllando la congestione della rete, ma ha gli
+svantaggi che potrebbe non esserci un profilo per ogni tipologia di dato
+da trasportare, e avendo un numero limitato di canali virtuali non è del
+tutto scalabile. Nel caso di connessioni di breve durata la costruzione
+del VC richiede tempo riducendo le prestazioni percepite.
+
+La \textbf{cella ATM} è costituita da un'intestazione da 5 byte (VCI,
+Payload Type, Priorità sulla perdita di cella, e byte di controllo
+errore) e un carico utile da 48 byte, che consente una trasmissione più
+efficace avendo dimensione fissa e un ritardo minore data la piccola
+dimensione.
+
+\hypertarget{header-n395}{%
+\subparagraph{Livello fisico ATM}\label{header-n395}}
+
+Suddiviso in due parti:
+
+\begin{itemize}
+\item
+  \textbf{Transmission Convergence Sublayer (TCS):} adatta la cella
+  creata da ATM al livello fisico sottostante creando il checksum,
+  effettuando la delineazione della cella e consentendo la
+  strutturazione del canale trasmettendo celle inattive se non ci sono
+  dati da inviare (il canale fisico è come un nastro trasportatore di
+  celle)
+\item
+  \textbf{Physical Medium Dependent:} dipende dal mezzo fisico
+  utilizzato
+\end{itemize}
+
+Il livello fisico di ATM consente il funzionamento con diverse
+tecnologie come SONET/SDH (reti ottiche sincrone), T1/T3 (fibra,
+microonde e cavo) o mappare le celle ATM su canali non strutturati
+(grazie alla delineazione di ATM).
+
+\hypertarget{header-n403}{%
+\paragraph{IP su ATM}\label{header-n403}}
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{ip-su-atm}
+	\end{center}
+
+Quando si raggiunge un router di ingresso nella rete ATM, questo router
+dovrà determinare come trasferire il datagramma attraverso la rete,
+utilizzando l'indirizzo IP di destinazione per capire dove inoltrarlo e
+utilizzando ARP per chiedere alla rete ATM di costruire il percorso
+relativo.
+
+Raggiunto il router di uscita verrà risalita la pila protocollare,
+incontrando AAL5 che permetterà di ricostruire il datagramma IP e di
+conseguenza la risalita del pacchetto IP e sua consegna.
+
+Per il corretto funzionamento di IP su ATM sarà necessario quindi un
+protocollo ARP dedicato ad ATM e dei router dotati di uno stack
+protocollare e un'interfaccia di rete compatibili con lo standard.
+
+\hypertarget{header-n408}{%
+\subsubsection{Multiprotocol Label Switching (MPLS)}\label{header-n408}}
+
+L'obiettivo iniziale del protocollo MPLS è quello di velocizzarre
+l'inoltro IP usando un'etichetta di lunghezza stabilita (invece
+dell'indirizzo di destinazione IP).
+
+\begin{center}
+		\includegraphics[width=0.7\linewidth]{mpls}
+	\end{center}
+
+I router a commutazione di etichetta (router MPLS) inviano i pacchetti
+analizzando l'etichetta MPLS nella tabella d'instradamento, passando il
+datagramma all'interfaccia corretta. Viene utilizzato un particolare
+protocollo RSVP-TE (estensione di RSVP) per distribuire etichette tra
+router, che consente l'invio di pacchetti lungo reti non utilizzabili
+con IP standard. Questi router coesistono coi router "solo-IP".
 	
 	
 \end{document}

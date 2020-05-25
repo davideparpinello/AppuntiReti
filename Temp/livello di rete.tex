@@ -1,0 +1,880 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\author{}
+\date{}
+
+\begin{document}
+
+\hypertarget{header-n0}{%
+\section{Introduzione}\label{header-n0}}
+
+\hypertarget{header-n2}{%
+\subsection{Funzioni chiave del livello di rete}\label{header-n2}}
+
+Il livello di rete svolge due funzioni principali:
+
+\begin{itemize}
+\item
+  \textbf{inoltro (o forwarding):} trasferimento dei pacchetti
+  dall'input di un router all'output appropriato
+\item
+  \textbf{instradamento (o routing):} determinare il percorso seguito
+  dai pacchetti da origine a destinazione
+\end{itemize}
+
+Possiamo, per analogia, considerare l'inoltro come l'attraversamento di
+uno svincolo durante un viaggio e l'instradamento come la pianificazione
+dell'intero viaggio.
+
+Per effettuare queste funzioni, viene inserito nell'header del pacchetto
+un'indicazione per l'instradamento, che verrà utilizzata dal router per
+fare un match con la sua tabella di routing.
+
+\emph{figura 4-5}
+
+Una terza funzione importante del livello di rete è
+\textbf{l'impostazione della connessione}, viene utilizzata però solo in
+alcune reti (come ATM o X.25). Prima della trasmissione dei dati viene
+stabilita una connessione virtuale tra i due host.
+
+\hypertarget{header-n13}{%
+\subsection{Modelli di servizio}\label{header-n13}}
+
+Il livello di rete offre diversi modelli di servizio: possiamo ricordare
+il servizio \textbf{best effort} utilizzato sulla rete internet attuale
+e i modelli \textbf{CBR (Constant), VBR (Variable), ABR (Available),
+UBR} utilizzati in ATM, per diversi anni utilizzata alternativa a
+Internet.
+
+\hypertarget{header-n15}{%
+\section{Reti a circuito virtuale e datagramma}\label{header-n15}}
+
+Le reti a datagramma offrono solo il servizio senza connessione, mentre
+le reti a \textbf{circuito virtuale} offrono il servizio con
+connessione. Questa è realizzata da host a host e non si può scegliere
+(il livello di rete non può fornirli entrambi contemporaneamente).
+
+\hypertarget{header-n17}{%
+\subsection{Reti a circuito virtuale}\label{header-n17}}
+
+Le reti a circuito virtuale (come ATM) sono reti analoghe ai circuiti
+telefonici che consentono buone prestazioni e vedono il coinvolgimento
+della rete: il pacchetto ha un numero di VC nell'header utilizzato e
+sostituito dai router, questo numero consente di effettuare
+multiplexing.
+
+I router di queste reti mantengono le informazioni sullo stato delle
+connessioni, infatti ogni router ha una tabella di inoltro con tutti i
+VC utilizzati.
+
+\emph{figura 4-12}
+
+\hypertarget{header-n21}{%
+\subsubsection{Protocolli di segnalazione}\label{header-n21}}
+
+I protocolli di segnalazione, non utilizzati sulla rete Internet, sono
+dei messaggi utilizzati per gestire la connessione sui VC quindi avvio,
+mantenimento e chiusura dei circuiti.
+
+\hypertarget{header-n23}{%
+\subsection{Reti a datagramma}\label{header-n23}}
+
+Nelle reti a datagramma non avviene l'impostazione di chiamata: i dati
+vengono inviati quando si vuole e quando la rete può li inoltrerà. In
+aggiunta, la rete è stateless (senza connessione) e i pacchetti vengono
+inoltrati utilizzando l'indirizzo di destinazione.
+
+Le tabelle di inoltro sono costituite da 4 miliardi di indirizzi
+possibili (32 bit), queste tabelle spesso sono realizzate ad intervalli.
+Per semplificazione si preferisce effettuare il matching confrontando i
+prefissi tra datagram e tabella, nel caso in cui i bit siano uguali si
+aumenta il numero di bit confrontati.
+
+\hypertarget{header-n26}{%
+\subsection{Confronto tra le due tipologie}\label{header-n26}}
+
+\begin{itemize}
+\item
+  \textbf{Circuiti virtuali (ATM)}
+
+  \begin{itemize}
+  \item
+    eredita dalla telefonia
+  \item
+    requisiti più stringenti in termini di tempo e affidabilità,
+    utilizzate per servizi garantiti
+  \item
+    i terminali sono stupidi: la complessità è interna alla rete (es.
+    controllo di flusso)
+  \end{itemize}
+\item
+  \textbf{Datagrammi (internet)}
+
+  \begin{itemize}
+  \item
+    scambio di dati tra calcolatori
+  \item
+    i servizi sono elastici: pochi requisiti di tempo
+  \item
+    L'interconnessione è semplice: adattabile, controllo degli errori,
+    rete interna semplice ed ottimizzata alla velocità
+  \item
+    svariati tipi di link, servizio non uniforme
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{header-n48}{%
+\section{Cosa si trova all'interno dei router?}\label{header-n48}}
+
+\hypertarget{header-n49}{%
+\subsection{Architettura}\label{header-n49}}
+
+I router svolgono due funzioni principali:
+
+\begin{itemize}
+\item
+  far girare i protocolli e gli algoritmi di instradamento (RIP, OSPF,
+  BGP)
+\item
+  inoltrare i datagram dagli input agli output
+\end{itemize}
+
+\emph{figura 4-19}
+
+\hypertarget{header-n57}{%
+\subsection{Porte d'ingresso}\label{header-n57}}
+
+\emph{figura 4-20}
+
+Le porte d'ingresso dei router vengono utilizzate per effettuare una
+commutazione decentralizzata:
+
+\begin{itemize}
+\item
+  determinare la porta d'uscita dei pacchetti utilizzando le
+  informazioni della tabella d'inoltro
+\item
+  obiettivo: completare l'elaborazione allo stesso tasso della linea
+\item
+  si presenta un \textbf{accodamento} se il tasso d'arrivo dei pacchetti
+  è maggiore del tasso d'inoltro
+\end{itemize}
+
+\hypertarget{header-n67}{%
+\subsection{Tecniche di commutazione}\label{header-n67}}
+
+\emph{figura 4-21}
+
+La tecnica di commutazione \textbf{in memoria} è la più semplice ma la
+meno performante, la tecnica \textbf{a crossbar} è invece la più
+efficace.
+
+\hypertarget{header-n70}{%
+\subsubsection{Commutazione in memoria}\label{header-n70}}
+
+La tecnica di commutazione in memoria veniva utilizzata nelle prime
+generazioni di router, i quali erano tradizionali calcolatori. La
+commutazione veniva controllata dalla CPU: il pacchetto veniva copiato
+in memoria e successivamente mandato in uscita con una frequenza totale
+di \textbf{B/2}.
+
+\hypertarget{header-n72}{%
+\subsubsection{Commutazione tramite bus}\label{header-n72}}
+
+La commutazione tramite bus si basa sull'utilizzo di un bus condiviso
+tra tutte le porte: siamo in presenza di una \textbf{contesa per il
+bus}, la cui banda limita di conseguenza la banda della commutazione.
+
+Un esempio di router è il Cisco 5600, che opera con un bus da 32 Gbps,
+sufficiente per reti d'accesso o aziendali.
+
+\hypertarget{header-n75}{%
+\subsubsection{Commutazione attraverso rete
+d'interconnessione}\label{header-n75}}
+
+Questa tecnica supera il limite di banda di un bus condiviso. Viene
+utilizzato un \textbf{crossbar switch}, ovvero una rete
+d'interconnessione di \emph{2n} bus che collegano \emph{n} porte
+d'entrata a \emph{n} porte d'uscita.
+
+Un esempio come il Cisco 12000 raggiunge i 60 Gbps nella struttura di
+commutazione.
+
+\hypertarget{header-n78}{%
+\subsection{Porte d'uscita}\label{header-n78}}
+
+Le porte d'uscita implementano le funzioni di accodamento (se la
+frequenza di pacchetti in arrivo è superiore a quella del collegamento
+uscente) e di schedulatore di pacchetti (stabilire l'ordine di
+trasmissione dei pacchetti).
+
+\hypertarget{header-n80}{%
+\subsection{Quale deve essere la capacità dei
+buffer?}\label{header-n80}}
+
+Secondo la regola spannometrica della RFC 3439 la capacità deve essere
+
+\[media \space RTT \space*\space capacita \space C\]
+
+dove C è la capacità del collegamento.
+
+Secondo attuali raccomandazioni, dati N flussi la capacità dei buffer
+deve essere
+
+\[\frac{RTT*C}{\sqrt{N}}\]
+
+\hypertarget{header-n86}{%
+\section{Protocollo Internet (IP)}\label{header-n86}}
+
+\emph{figura 4-28}
+
+\hypertarget{header-n88}{%
+\subsection{Formato dei datagrammi}\label{header-n88}}
+
+\emph{figura 4-30}
+
+I datagrammi IP utilizzano 16 byte, hanno quindi una dimensione massima
+di 64 KB. Il campo del protocollo di livello superiore indica il
+protocollo utilizzato dal pacchetto trasmesso, quindi TCP/UDP. Avendo a
+disposizione 32 bit per gli indirizzi abbiamo in totale poco più di 4
+miliardi di indirizzi.
+
+\hypertarget{header-n91}{%
+\subsubsection{Frammentazione dei datagrammi}\label{header-n91}}
+
+La frammentazione dei datagrammi è una funzione importante poiché
+consente il trasporto da parte del livello sottostante (collegamento) di
+datagrammi più grandi di quanto ne potrebbe portare.
+
+Se la \textbf{MTU} (Maximum Transmission Unit, quantità massima di dati
+che un frame a livello di collegamento può portare) è più bassa della
+dimensione del datagram IP, il livello 3 frammenta i datagram troppo
+grossi in altri datagram, che verranno riassemblati solo a destinazione.
+Ogni router della rete può frammentare in base alle sue esigenze.
+
+Quando viene effettuata la frammentazione viene settato a 1 il flag
+relativo nell'header di ogni pacchetto inviato (tranne l'ultimo) e in
+ognuno viene indicato lo spiazzamento (utilizzato per riposizionare il
+datagramma nel giusto payload e in posizione corretta).
+
+\emph{figura 4-32}
+
+Il destinatario ricostruirà il datagram originale riconoscendo gli ID
+comuni, sapendo che se lo spiazzamento è uguale a 0 sarà il primo,
+mentre se il flag sarà uguale a 0 sarà l'ultimo.
+
+\hypertarget{header-n97}{%
+\subsection{Indirizzamento IPv4}\label{header-n97}}
+
+L'indirizzamento IPv4 consente il posizionamento dei dispositivi nella
+rete globale: infatti, ogni \textbf{interfaccia} di ciascun host
+collegato su Internet ha un IP globalmente univoco. Questo indirizzo è
+costituito da 32 bit.
+
+L'interfaccia è il confine tra host e collegamento fisico: i router
+devono avere almeno due interfacce (2 indirizzi IP) mentre gli host, in
+genere, hanno una sola interfaccia.
+
+\hypertarget{header-n100}{%
+\subsubsection{Sottoreti}\label{header-n100}}
+
+Le sottoreti consentono di dividere l'indirizzamento in Internet in
+parti a sè stanti. Per dare una definizione appropriata possiamo
+considerare le sottoreti come delle reti isolate i cui punti terminali
+sono collegati all'interfaccia di un host o un router.
+
+Questo è possibile suddividendo gli indirizzi IP in due parti: una parte
+di \textbf{sottorete}, condivisa fino a un certo punto, e una parte di
+\textbf{host}.
+
+\emph{figura 4-36}
+
+La \textbf{maschera di rete} viene utilizzata per indicare quanti bit da
+sinistra contengono il prefisso condiviso tra tutti gli host della
+sottorete.
+
+\hypertarget{header-n105}{%
+\paragraph{CIDR}\label{header-n105}}
+
+CIDR, o (Classless Interdomain Routing), è una strategia di assegnazione
+degli indirizzi che definisce il prefisso comune agli apparati in una
+rete.
+
+Ha una struttura del tipo \emph{a.b.c.d/x} dove x indica il numero di
+bit della prima parte dell'indirizzo (parte subnet).
+
+\emph{figura 4-38}
+
+La strategia CIDR facilita ai router la costruzione delle tabelle di
+inoltro e consente a un PC di sapere se un host si trova nella sua
+stessa sottorete (facendo l'AND tra indirizzo e maschera di rete troverà
+il prefisso che confronterà).
+
+\hypertarget{header-n110}{%
+\subsubsection{Assegnazione degli indirizzi}\label{header-n110}}
+
+L'assegnazione degli indirizzi può avvenire in modalità manuale o
+mediante \textbf{DHCP}. Il DHCP (Dynamic Host Configuration Protocol)
+consente di ottenere dinamicamente un IP da un server (plug-and-play),
+l'IP avrà una scadenza e potrà essere rinnovato, consente il riuso e il
+risparmio di indirizzi.
+
+\emph{figura 4-41}
+
+\emph{figura 4-42}
+
+L'amministratore di rete o l'ISP ha a disposizione un blocco di IP da
+utilizzare nelle subnet: se sono privati non si pone alcun problema,
+mentre se sono pubblici questi dovranno essere comprati da altri ISP. A
+sua volta, un ISP o un amministratore può dividere il blocco a sua
+disposizione in altri sottoblocchi contigui.
+
+\hypertarget{header-n115}{%
+\paragraph{Indirizzamento gerarchico}\label{header-n115}}
+
+\emph{figura 4-45}
+
+\hypertarget{header-n117}{%
+\paragraph{Indirizzi IP alla fonte}\label{header-n117}}
+
+Come fa un ISP a ottenere indirizzi IP? Si rivolge all'ICANN (Internet
+Corporation for Assigned Names and Numbers), ente che si occupa di
+allocare i blocchi di indirizzi, gestire i server DNS radice, assegnare
+e risolvere dispute sui domini.
+
+\hypertarget{header-n119}{%
+\subsubsection{Traduzione degli indirizzi di rete
+(NAT)}\label{header-n119}}
+
+La traduzione degli indirizzi di rete consente ai router di apparire a
+Internet con un unico indirizzo IP, quindi tutto il traffico della
+sottorete avrà lo stesso indirizzo. Si utilizzano all'interno classi di
+IP private come \emph{10.0.0.0/8} e \emph{192.168.0.0/16}.
+
+Utilizzando il NAT il router abiulitato nasconde i dettagli della rete
+domestica al mondo esterno, portando alcuni vantaggi:
+
+\begin{itemize}
+\item
+  non serve allocare intervalli di indirizzi da un ISP
+\item
+  è possibile riconfigurare la rete privata senza comunicarlo a Internet
+\item
+  è possibile cambiare ISP senza modificare la configurazione della rete
+  privata
+\item
+  i dispositivi interni non sono indirizzabili e visibili dall'esterno
+  (sicurezza)
+\end{itemize}
+
+Per implementare il NAT il router, all'arrivo di un datagramma, genera
+una nuova porta d'origine e sostituisce l'IP di origine con il proprio
+IP sul lato WAN e la porta di origine iniziale con il nuovo numero.
+
+\emph{figura 4-50}
+
+Il numero di porta è costituito da 16 bit, quindi sono possibili più di
+60000 connessioni simultanee. NAT è contestato per diversi motivi:
+
+\begin{itemize}
+\item
+  i router dovrebbero lavorare solo a livello 3+
+\item
+  viola il punto-punto, causando interferenze a P2P (serve una specifica
+  configurazione)
+\item
+  si dovrebbe usare alternativamente IPv6
+\end{itemize}
+
+\hypertarget{header-n141}{%
+\paragraph{Collegamenti dall'esterno}\label{header-n141}}
+
+Un problema importante del NAT è l'impossibilità di effettuare
+collegamenti dall'esterno a un host interno alla rete (come un server
+web). Per effettuare questo si possono implementare alcune soluzioni
+
+\begin{itemize}
+\item
+  impostare delle configurazioni statiche per inoltrare le richieste
+  entranti a determinate porte dell'host (tabelle di forwarding)
+\item
+  utilizzare \textbf{UPnP} (Universal Plug n Play), parte integrante di
+  IGD (Internet Gateway Device protocol), che consente agli host
+  nascosti da un NAT di chiedere in automatico di scrivere una riga
+  nella tabella di forwarding
+\item
+  \textbf{relay} (utilizzato da Skype), prevede un punto di riferimento
+  a cui entrambi i client si collegano
+\end{itemize}
+
+\emph{figura 4-54}
+
+\hypertarget{header-n151}{%
+\subsection{ICMP}\label{header-n151}}
+
+ICMP (Internet Control Message Protocol) consente lo scambio di
+informazioni relative al controllo della rete, come errori o ping. ICMP
+è considerato parte di IP, i messaggi hanno un campo tipo e un campo
+codice mentre l'intestazione e i primi 8 byte sono uguali al datagram
+IP.
+
+\hypertarget{header-n153}{%
+\subsubsection{Traceroute e ICMP}\label{header-n153}}
+
+Il programma invia più datagrammi con un TTL incrementale, ogni router
+scarterà il datagram e invierà all'origine un'allerta ICMP la quale
+calcolerà il RTT. Ogni router viene calcolato per 3 volte per avere una
+media e il programma si fermerà una volta arrivato a destinazione,
+ovvero quando l'host invierà un pacchetto ICMP di porta non
+raggiungibile.
+
+\hypertarget{header-n155}{%
+\subsection{IPv6}\label{header-n155}}
+
+L'esigenza principale che ha portato allo sviluppo di IPv6 è stato lo
+spazio di indirizzamento IP a 32 bit che stava cominciando ad esaurirsi.
+Oltre a questo, altre motivazioni erano un header più leggero per
+velocizzare elaborazione e inoltro, e un agevolazione del QoS.
+
+\hypertarget{header-n157}{%
+\subsubsection{Formato dei datagrammi}\label{header-n157}}
+
+I datagram IP sono costituiti da 40 byte di header a lunghezza fissa e
+non è consentita la frammentazione.
+
+\emph{figura 4-60}
+
+Alcuni campi nuovi sono la \textbf{priorità di flusso},
+l'\textbf{etichetta di flusso} che identifica flussi particolari (non è
+chiaro il concetto di flusso) e l'\textbf{intestazione successiva} che
+identifica il protocollo di destinazione dei contenuti.
+
+Inoltre, è stato rimosso il checksum poiché ridondante, il campo opzioni
+non è più parte dell'intestazione ma può venire indicato in
+"intestazioni successive" ed è stato introdotto \textbf{ICMPv6} con
+nuovi codici che assume le funzionalità di IGMP (gestisce l'ingresso e
+l'uscita di host dai gruppi multicast).
+
+\hypertarget{header-n162}{%
+\subsubsection{Passaggio a IPv6}\label{header-n162}}
+
+Non è possibile aggiornare simultaneamente tutti i router, poiché
+servirebbe stabilire una giornata "di passaggio", attualmente
+impossibile. Per questo si utilizza il \textbf{tunneling}: IPv6 viene
+trasportato come payload in datagram IPv4.
+
+\emph{figura 4-63}
+
+\hypertarget{header-n165}{%
+\section{Algoritmi di instradamento}\label{header-n165}}
+
+Gli algoritmi di instradamento sono implementati nelle reti a
+commutazione di pacchetto, grazie all'inserimento di un valore
+nell'header di livello 3, che verrà letto e confrontato con le varie
+tabelle di instradamento.
+
+\emph{figura 4-67}
+
+Possiamo assumere una rete come un grafo dove i nodi sono i router e gli
+archi sono i collegamento. Gli algoritmi di instradamento si occupano di
+calcolare il cammino a costo minimo tra due router.
+
+Questi algoritmi possono essere classificati in più modalità: globali o
+decentralizzati e statici o dinamici:
+
+\begin{itemize}
+\item
+  un algoritmo \textbf{globale} riceve in ingresso tutti i collegamenti
+  tra nodi e loro costi, un esempio sono gli algoritmi
+  \textbf{link-state}
+\item
+  in un algoritmo \textbf{decentralizzato} ogni nodo elabora un vettore
+  di stima dei costi verso tutti gli altri nodi, quindi il cammino a
+  costo minimo viene calcolato in modo distribuito e iterativo. Un
+  esempio sono gli algoritmi \textbf{distance-vector}
+\item
+  in un algoritmo \textbf{statico} i cammini cambiano molto raramente
+\item
+  gli algoritmi \textbf{dinamici} determinano gli instradamenti in base
+  al traffico e alla topologia della rete
+\end{itemize}
+
+\hypertarget{header-n179}{%
+\subsection{Stato del collegamento (link state)}\label{header-n179}}
+
+Un esempio di algoritmo link state è l'\textbf{algoritmo di Dijkstra} il
+quale prevede che la topologia di rete e i costi siano noti a tutti i
+nodi mediante il "link-state broadcast" e che tutti i nodi dispongano
+delle stesse informazioni.
+
+L'algoritmo calcola il cammino a costo minimo dall'origine a tutti gli
+altri nodi, creando una \textbf{tabella d'inoltro} per quel nodo.
+Essendo iterativo, dopo la k-esima iterazione i cammini a costo minimo
+sono noti a k nodi di destinazione.
+
+I costi di ogni collegamento possono essere:
+
+\begin{itemize}
+\item
+  predefiniti dal provider
+\item
+  tutti uguali
+\item
+  costi effettivi (satellite)
+\item
+  definiti dal ritardo di collegamento
+\end{itemize}
+
+La regola è evitare che i costi dipendano dal routing.
+
+La sua complessità con n nodi è data da
+
+\[O(nlogn)\]
+
+Può presentare delle oscillazioni ad esempio nel costo del collegamento
+in base alla quantità di traffico trasportato.
+
+\hypertarget{header-n196}{%
+\subsection{Algoritmo con vettore distanza}\label{header-n196}}
+
+Un esempio di algoritmo con vettore distanza è la \textbf{formula di
+Bellman-Ford} (o a programmazione dinamica) che definisce il costo del
+percorso a costo minimo da x a y
+
+\[d_x(y) = min_v\{c(x,v) + d_v(y)\}\]
+
+dove min\emph{v riguarda tutti i vicini di x, c(x,v) comprende il costo
+di tutti i collegamenti diretti da x a v e d}v(y) è il percorso a costo
+minimo da v a y.
+
+L'algoritmo viene eseguito nel modo seguente: il nodo x contatta tutti i
+vicini v e si fa dare da ognuno di essi ogni costo per andare a y,
+successivamente valuterà tutte le alternative.
+
+L'idea di base è che ogni nodo invia una copia del proprio vettore
+distanza a ogni vicino, quando un nodo riceve un nuovo vettore distanza
+da un vicinolo salva e usa la formula B-F per aggiornare il proprio DV.
+Finché tutti i nodi continuano a cambiare i propri DV in maniera
+asincrona, ciascuma stima Dx(y) coverge a d\_x(y).
+
+L'algoritmo con vettore distanza è \textbf{iterativo ed asincrono},
+poiché ogni iterazione locale è causata dal cambio del costo di un link
+locale o dalla ricezione di un DV aggiornato; è \textbf{distribuito}
+poiché ogni nodo aggiorna i suoi vicini solo quando il suo DV cambia.
+
+\hypertarget{header-n203}{%
+\subsubsection{Modifica dei costi}\label{header-n203}}
+
+Quando un nodo rileva un cambiamento nel costo dei collegamenti allora
+aggiorna il proprio vettore distanza e lo trasmetterà ai suoi vicini,
+secondo il principio che "le buone notizie viaggiano in fretta".
+
+\hypertarget{header-n205}{%
+\subsubsection{Confronto tra algoritmi LS e DV}\label{header-n205}}
+
+\begin{itemize}
+\item
+  Complessità dei messaggi
+
+  \begin{itemize}
+  \item
+    LS con n nodi, E collegamenti implica l'invio di O(nE) messaggi
+  \item
+    DV richiede scambi tra nodi adiacenti, quindi il tempo di
+    convergenza può variare
+  \end{itemize}
+\item
+  Velocità di convergenza
+
+  \begin{itemize}
+  \item
+    LS: l'algoritmo O(n2) richiede O(nE) messaggi, ci possono essere
+    oscillazioni di velocità
+  \item
+    DV può convergere lentamente, può presentare cicli d'instradamento e
+    può presentare il problema del conteggio all'infinito
+  \end{itemize}
+\item
+  \textbf{Robustezza:} cosa avviense se un router funziona male
+
+  \begin{itemize}
+  \item
+    LS: un router può comunicare via broadcast un costo sbagliato per
+    uno dei suoi collegamenti (non per altri), i nodi si occupano di
+    calcolare solo le proprie tabelle
+  \item
+    DV: un nodo può comunicare cammini a costo minimo errati a tutte le
+    destinazioni, la tabella di ogni nodo può essere usata da altri
+    quindi \underline{un calcolo errato si diffonde per l'intera rete}
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{header-n228}{%
+\subsection{Instradamento gerarchico}\label{header-n228}}
+
+Fino ad ora abbiamo visto la rete come un insieme di router
+interconnessi, con una visione omogenea, ma nella pratica le cose non
+sono così semplici. Nella realtà ci sono 200 milioni di destinazioni,
+quindi archiviare tutte le informazioni di instradamento su ogni host
+sarebbe impossibile data l'enorme quantità di memoria necessaria e
+l'elevato traffico (bloccherebbe il resto) che si creerebbe.
+
+Per questo, conviene impostare la rete Internet con una
+\textbf{autonomia amministrativa}, secondo la quale idealmente ciascuno
+sarebbe in grado di amministrare la propria rete connettendola alle
+altre.
+
+Nella realtà è possibile organizzare i router in \textbf{sistemi
+autonomi} (AS), dove in ogni gruppo autonomo i router eseguono lo stesso
+algoritmo di instradamento (protocollo \textbf{intra-AS}) mentre i
+\textbf{router gateway} hanno il compito di inoltrare i pacchetti a
+destinazioni esterne.
+
+Ogni sistema autonomo sa come inoltrare i pacchetti lungo il percorso
+ottimo verso qualsiasi destinazione interna al gruppo, mentre per
+trasferire dati tra sistemi autonomi differenti (i quali potrebbero
+usare protocolli differenti) si utilizza l'instradamento
+\textbf{inter-AS}.
+
+\emph{figura 4-91}
+
+\emph{tabella 4-94}
+
+\hypertarget{header-n235}{%
+\section{Instradamento in Internet}\label{header-n235}}
+
+I protocolli d'instradamento \emph{intra-AS} sono noti come protocolli
+gateway interni (\textbf{IGP}), i più comuni sono:
+
+\begin{itemize}
+\item
+  \textbf{RIP}: Routing Information Protocol
+\item
+  \textbf{OSPF}: Open Shortest Path First
+\item
+  \textbf{IGRP}: Interior Gateway Routing Protocol (proprietario Cisco)
+\end{itemize}
+
+\hypertarget{header-n244}{%
+\subsection{RIP (Routing Information Protocol)}\label{header-n244}}
+
+RIP è un protocollo a vettore distanza incluso in UNIX BSD dagli anni
+'80. Effettua un conteggio degli hop come metrica di costo con un
+massimo di 15 hop.
+
+I router adiacenti si scambiano aggiornamenti ogni 30 secondi mediante
+l'annuncio RIP (\emph{RIP advertisement}), contenente un elenco di fino
+a 25 sottoreti di destinazione interne all'AS, insieme alla distanza tra
+il mittente ed esse.
+
+Se un router non riceve notizie dal vicino per più di 180 secondi il
+nodo viene considerato spento, con il ricalcolo della tabella e la
+propagazione dell'informazione agli altri vicini. L'utilizzo
+dell'\emph{inversione avvelenata} evita i loop (16 hop).
+
+RIP viene implementato a livello applicazione con messaggi su socket
+standard e protocollo di trasporto standard.
+
+\hypertarget{header-n249}{%
+\subsection{OSPF (Open Shortest Path First)}\label{header-n249}}
+
+Essendo open, le specifiche del protocollo sono pubblicamente
+disponibili. Protocollo a link-state, utilizza il flooding di
+informazioni di stato del link e l'algoritmo di Dijkstra per determinare
+il percorso a costo minimo. Ogni volta che si verifica un cambiamento su
+un link il router inoltra l'informazione a tutti i router (all'intero
+AS) utilizzando il flooding, i messaggi sono trasportati da IP.
+
+OSPF presenta alcuni vantaggi rispetto a RIP:
+
+\begin{itemize}
+\item
+  \textbf{sicurezza}: scambi tra router autenticati
+\item
+  \textbf{multipath}: consente l'utilizzo di più percorsi con uguale
+  costo
+\item
+  per ogni link possono esserci più costi in base al servizio (es.
+  satellite costo elevato)
+\item
+  \textbf{supporto unicast e multicast}: viene utilizzato OSPF Multicast
+\item
+  \textbf{supporto alle gerarchie} in un dominio d'instradamento
+\end{itemize}
+
+\hypertarget{header-n263}{%
+\subsubsection{OSPF strutturato gerarchicamente}\label{header-n263}}
+
+\emph{figura 4-107}
+
+La struttura gerarchica in OSPF consente di impostare due livelli: area
+locale e dorsale, nelle quali i messaggi LS sono solo all'interno
+dell'area e ogni nodo conosce la direzione verso le reti nelle altre
+aree.
+
+I \textbf{router di confine d'area} appartengono sia alla dorsale che a
+un'area generica, i \textbf{router di dorsale} effettuano
+l'instradamento interno alla dorsale, i \textbf{router di confine}
+scambiano informazioni con router di altri AS.
+
+\hypertarget{header-n267}{%
+\subsection{BGP: instradamento inter-AS}\label{header-n267}}
+
+Il protocollo BGP (Border Gateway Protocol) è l'attuale standard
+\emph{de facto} per l'instradamento inter-AS, che mette a disposizione
+di ciascun AS le seguenti funzionalità:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  ottenere informazioni sulla raggiungibilità delle sottoreti da parte
+  di AS confinanti
+\item
+  propagare le informazioni di raggiungibilità a tutti i router interni
+  di un AS
+\item
+  determinare percorsi "buoni" verso le sottoreti sulla base delle
+  informazioni di raggiungibilità e delle politiche dell'AS
+\end{enumerate}
+
+In breve, BGP consente alle sottoreti di comunicare la propria esistenza
+alla rete Internet.
+
+\hypertarget{header-n280}{%
+\subsubsection{Fondamenti di BGP}\label{header-n280}}
+
+Due router che si scambiano messaggi BGP sono chiamati \textbf{peer BGP}
+mentre la connessione TCP è detta \textbf{sessione BGP}. Quando un AS
+annuncia un prefisso ad un altro AS, sta in realtà "promettendo" di
+inoltrare i datagrammi sul prefisso stabilito, un AS può aggregare più
+prefissi in un annuncio.
+
+\emph{figura 4-111}
+
+Le sessioni BGP interne sono utilizzate per distribuire i prefissi a
+tutti i router del AS, mentre le sessioni esterne scambiano informazioni
+sulla raggiungibilità dei prefissi.
+
+\hypertarget{header-n328}{%
+\paragraph{Attributi del percorso}\label{header-n328}}
+
+Quando viene annunciato un prefisso, nel messaggio vengono aggiunti
+anche degli attributi BGP come:
+
+\begin{itemize}
+\item
+  \textbf{AS-PATH} che elenca gli AS che ha attraversato l'annuncio
+\item
+  \textbf{NEXT-HOP} che indica l'eventuale collegamento fisico su cui
+  viene inoltrato il pacchetto
+\end{itemize}
+
+Ogni router gateway ha delle \textbf{politiche di importazione} per
+decidere se accettare o filtrare la rotta.
+
+\emph{figura 4-114}
+
+\hypertarget{header-n330}{%
+\paragraph{Selezione dei percorsi}\label{header-n330}}
+
+Nel caso in cui siano presenti più rotte si seguono alcune regole di
+eliminazione:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  si preferiscono le rotte con dei valori di preferenza locale più alti
+\item
+  si seleziona la rotta con AS-PATH più breve
+\item
+  si seleziona la rotta con il router NEXT-HOP più vicino, instradamento
+  a \emph{patata bollente}
+\item
+  se avanzano più rotte, ci si basa sugli identificatori BGP
+\end{enumerate}
+
+\hypertarget{header-n327}{%
+\paragraph{Messaggi BGP}\label{header-n327}}
+
+\begin{itemize}
+\item
+  \textbf{OPEN}: apre la connessione TCP e autentica il mittente
+\item
+  \textbf{UPDATE}: annuncia il nuovo percorso
+\item
+  \textbf{KEEPALIVE}: mantiene la connessione attiva in mancanza di
+  UPDATE
+\item
+  \textbf{NOTIFICATION}: riporta gli errori del precedente messaggio;
+  usato anche per chiudere il collegamento.
+\end{itemize}
+
+\hypertarget{header-n349}{%
+\subsubsection{Differenze tra i protocolli inter-AS e
+intra-AS}\label{header-n349}}
+
+\begin{itemize}
+\item
+  \textbf{Politiche}
+
+  \begin{itemize}
+  \item
+    Inter-AS: l'amministrazione vuole controllare l'instradamento del
+    traffico e chi instrada attraverso le sue reti
+  \item
+    Intra-AS: un solo controllo amministrativo, rotte interne scelta
+    senza questioni di politica importanti
+  \end{itemize}
+\item
+  \textbf{Scala}: l'instradamento gerarchico fa risparmiare sulle
+  tabelle d'instradamento riducendo il traffico di aggiornamento
+\item
+  \textbf{Prestazioni}: Intra-AS orientato alle prestazioni, Inter-AS le
+  politiche possono prevalere sulle prestazioni
+\end{itemize}
+
+\end{document}
