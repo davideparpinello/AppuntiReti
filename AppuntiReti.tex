@@ -845,7 +845,7 @@ deve essere
 		\includegraphics[width=0.7\linewidth]{datagram-ip}
 	\end{center}
 
-I datagrammi IP utilizzano 16 byte, hanno quindi una dimensione massima
+Il campo lunghezza del datagramma è da 16 bit, i datagram  hanno quindi una dimensione massima
 di 64 KB. Il campo del protocollo di livello superiore indica il
 protocollo utilizzato dal pacchetto trasmesso, quindi TCP/UDP. Avendo a
 disposizione 32 bit per gli indirizzi abbiamo in totale poco più di 4
@@ -868,6 +868,8 @@ Quando viene effettuata la frammentazione viene settato a 1 il flag
 relativo nell'header di ogni pacchetto inviato (tranne l'ultimo) e in
 ognuno viene indicato lo spiazzamento (utilizzato per riposizionare il
 datagramma nel giusto payload e in posizione corretta).
+
+Lo spiazzamento viene calcolato come numero di byte dati presenti nei datagram precedenti (senza contare i 20 byte di header) / 8.
 
 \begin{wrapfigure}{r}{0.4\textwidth}
 		\centering
